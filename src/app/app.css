@@ -1,13 +1,13 @@
 .app {
-  max-width: 1040px;
+  max-width: 980px;
   margin: 0 auto;
-  padding: clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 3vw, 1.75rem)
-    clamp(2.5rem, 6vw, 4rem);
+  padding: clamp(1.1rem, 3.5vw, 2rem) clamp(1rem, 3vw, 1.5rem)
+    clamp(2rem, 5vw, 3.25rem);
   text-align: left;
 }
 
 .header {
-  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+  margin-bottom: clamp(1.5rem, 3.5vw, 2.1rem);
 }
 
 .header__brand {
@@ -18,10 +18,10 @@
 
 .header__mark {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  margin-top: 0.15rem;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  margin-top: 0.12rem;
+  border-radius: 11px;
   background: color-mix(in srgb, var(--accent) 38%, var(--surface));
   box-shadow:
     0 0 0 1px var(--border-strong),
@@ -33,30 +33,30 @@
 }
 
 .title {
-  font-size: clamp(1.85rem, 4.5vw, 2.5rem);
+  font-size: clamp(1.55rem, 3.8vw, 2.05rem);
   font-weight: 700;
-  letter-spacing: -0.035em;
-  margin: 0 0 0.4rem;
-  line-height: 1.1;
+  letter-spacing: -0.032em;
+  margin: 0 0 0.35rem;
+  line-height: 1.12;
 }
 
 .tagline {
   margin: 0;
-  font-size: clamp(0.94rem, 2.2vw, 1.02rem);
+  font-size: clamp(0.86rem, 2vw, 0.94rem);
   line-height: 1.5;
   color: var(--muted);
-  max-width: 36rem;
+  max-width: 34rem;
 }
 
 .footer {
-  margin-top: clamp(2rem, 5vw, 3rem);
-  padding-top: 1.5rem;
+  margin-top: clamp(1.65rem, 4vw, 2.5rem);
+  padding-top: 1.25rem;
   border-top: 1px solid var(--border);
 }
 
 .footer p {
   margin: 0;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   line-height: 1.55;
   color: var(--muted);
   max-width: 42rem;
