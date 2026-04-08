@@ -1,0 +1,53 @@
+:root {
+  --bg: #0f1419;
+  --surface: #161c24;
+  --surface-2: #1c2430;
+  --surface-hover: #232d3d;
+  --border: #2a3444;
+  --border-strong: #3d4f66;
+  --text: #e6edf3;
+  --heading: #f0f6fc;
+  --muted: #8b9cb3;
+
+  --buy: #3fb950;
+  --sell: #f85149;
+  --hold: #58a6ff;
+
+  --shadow-card:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 12px 40px rgba(0, 0, 0, 0.45);
+
+  font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(1200px 600px at 10% -10%, #1a2840 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #1a2535 0%, transparent 50%), var(--bg);
+}
+
+#root {
+  min-height: 100vh;
+  text-align: left;
+}
+
+h1,
+h2 {
+  font-family: inherit;
+  color: var(--heading);
+}

@@ -1,0 +1,155 @@
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.35rem 1.25rem 1.25rem;
+  box-shadow: var(--shadow-card);
+}
+
+.card-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.ticker-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.symbol {
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: 0.02em;
+}
+
+.company {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0.35rem 0 0;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.price-block {
+  text-align: right;
+}
+
+.price {
+  display: block;
+  font-size: 1.65rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.price-change {
+  display: inline-block;
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.price-change--up {
+  color: var(--buy);
+}
+
+.price-change--down {
+  color: var(--sell);
+}
+
+.signal-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.signal-badge--buy {
+  background: color-mix(in srgb, var(--buy) 18%, transparent);
+  color: var(--buy);
+  border: 1px solid color-mix(in srgb, var(--buy) 45%, var(--border));
+}
+
+.signal-badge--sell {
+  background: color-mix(in srgb, var(--sell) 18%, transparent);
+  color: var(--sell);
+  border: 1px solid color-mix(in srgb, var(--sell) 45%, var(--border));
+}
+
+.signal-badge--hold {
+  background: color-mix(in srgb, var(--hold) 22%, transparent);
+  color: var(--hold);
+  border: 1px solid color-mix(in srgb, var(--hold) 45%, var(--border));
+}
+
+.signal-copy {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  margin: 0 0 0.85rem;
+}
+
+.signal-copy strong {
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.disclaimer {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin: 0 0 1rem;
+}
+
+.muted {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.error {
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.error p {
+  margin: 0 0 1rem;
+  color: var(--sell);
+}
+
+.btn {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 0.55rem 1rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--heading);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--border-strong);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--hold);
+  outline-offset: 2px;
+}
+
+.btn-ghost {
+  width: 100%;
+  margin-top: 0.25rem;
+  background: transparent;
+}
