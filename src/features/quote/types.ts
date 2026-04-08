@@ -1,5 +1,20 @@
 export type Signal = 'buy' | 'sell' | 'hold'
 
+/** Values behind the badge; for display only. */
+export type SignalBreakdown =
+  | { status: 'need_history'; tradingDaysAvailable: number }
+  | {
+      status: 'ok'
+      lastClose: number
+      sma10: number
+      sma30: number
+      rsi14: number | null
+      volume: 'weak' | 'ok' | 'unavailable'
+      maTrend: 'uptrend' | 'downtrend' | 'sideways'
+      /** Set when the badge is Hold but MAs were directional (RSI / volume gates). */
+      holdFilter: string | null
+    }
+
 export type StockQuote = {
   symbol: string
   name: string
@@ -10,4 +25,5 @@ export type StockQuote = {
   closes: number[]
   signal: Signal
   signalDetail: string
+  signalBreakdown: SignalBreakdown
 }

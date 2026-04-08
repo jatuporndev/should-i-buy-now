@@ -1,25 +1,63 @@
 .app {
-  max-width: 520px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: clamp(1.5rem, 4vw, 2.5rem) 1.25rem 3rem;
+  padding: clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 3vw, 1.75rem)
+    clamp(2.5rem, 6vw, 4rem);
   text-align: left;
 }
 
 .header {
-  margin-bottom: 1.5rem;
+  margin-bottom: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+.header__brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.header__mark {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  margin-top: 0.15rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 38%, var(--surface));
+  box-shadow:
+    0 0 0 1px var(--border-strong),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.header__titles {
+  min-width: 0;
 }
 
 .title {
-  font-size: clamp(1.75rem, 5vw, 2.25rem);
+  font-size: clamp(1.85rem, 4.5vw, 2.5rem);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  margin: 0 0 0.5rem;
-  line-height: 1.15;
+  letter-spacing: -0.035em;
+  margin: 0 0 0.4rem;
+  line-height: 1.1;
 }
 
-.subtitle {
+.tagline {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: clamp(0.94rem, 2.2vw, 1.02rem);
   line-height: 1.5;
   color: var(--muted);
+  max-width: 36rem;
+}
+
+.footer {
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.footer p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 42rem;
 }

@@ -52,8 +52,10 @@ function parseClosesAndVolumes(raw: YahooChartJson): {
   return { closes, volumes }
 }
 
-export async function fetchAmznQuote(): Promise<StockQuote> {
-  const path = '/v8/finance/chart/AMZN?range=3mo&interval=1d'
+export async function fetchStockQuote(symbol: string): Promise<StockQuote> {
+  const upper = symbol.trim().toUpperCase()
+  const encoded = encodeURIComponent(upper)
+  const path = `/v8/finance/chart/${encoded}?range=3mo&interval=1d`
   const yahooUrl = `https://query1.finance.yahoo.com${path}`
 
   let text: string
@@ -82,21 +84,40 @@ export async function fetchAmznQuote(): Promise<StockQuote> {
     meta?.regularMarketPrice ??
     (closes.length ? closes[closes.length - 1] : NaN)
 
-  const prev =
-    meta?.chartPreviousClose ??
-    meta?.previousClose ??
-    (closes.length > 1 ? closes[closes.length - 2] : NaN)
+  const priorFromSeries =
+    closes.length > 1 ? closes[closes.length - 2]! : Number.NaN
+
+  let prev = Number.NaN
+  const metaPrev = meta?.previousClose
+  if (
+    typeof metaPrev === 'number' &&
+    Number.isFinite(metaPrev) &&
+    metaPrev !== 0
+  ) {
+    prev = metaPrev
+  } else if (Number.isFinite(priorFromSeries) && priorFromSeries !== 0) {
+    prev = priorFromSeries
+  } else {
+    const chartPrev = meta?.chartPreviousClose
+    if (
+      typeof chartPrev === 'number' &&
+      Number.isFinite(chartPrev) &&
+      chartPrev !== 0
+    ) {
+      prev = chartPrev
+    }
+  }
 
   if (!Number.isFinite(price)) throw new Error('Could not read current price')
 
   const changePercent =
     Number.isFinite(prev) && prev !== 0 ? ((price - prev) / prev) * 100 : 0
 
-  const { signal, detail } = computeSignal(closes, volumes)
+  const { signal, detail, breakdown } = computeSignal(closes, volumes)
 
   return {
-    symbol: meta?.symbol ?? 'AMZN',
-    name: meta?.longName ?? meta?.shortName ?? 'Amazon.com, Inc.',
+    symbol: meta?.symbol ?? upper,
+    name: meta?.longName ?? meta?.shortName ?? upper,
     currency: meta?.currency ?? 'USD',
     price,
     previousClose: Number.isFinite(prev) ? prev : price,
@@ -104,5 +125,6 @@ export async function fetchAmznQuote(): Promise<StockQuote> {
     closes,
     signal,
     signalDetail: detail,
+    signalBreakdown: breakdown,
   }
 }

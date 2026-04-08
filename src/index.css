@@ -1,24 +1,40 @@
 :root {
-  --bg: #0f1419;
-  --surface: #161c24;
-  --surface-2: #1c2430;
-  --surface-hover: #232d3d;
-  --border: #2a3444;
-  --border-strong: #3d4f66;
-  --text: #e6edf3;
-  --heading: #f0f6fc;
-  --muted: #8b9cb3;
+  --bg: #07080a;
+  --bg-elevated: #0e1014;
+  --surface: #12151c;
+  --surface-2: #181c26;
+  --surface-hover: #222836;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --text: #e8eaef;
+  --heading: #f4f6fa;
+  --muted: #8b94a8;
 
-  --buy: #3fb950;
-  --sell: #f85149;
-  --hold: #58a6ff;
+  --main: #7fb77e;
+  --buy: var(--main);
+  --sell: #ff6b6b;
+  --hold: #7eb8ff;
+
+  --accent: var(--main);
+  --accent-dim: rgba(127, 183, 126, 0.14);
+  --ring: rgba(127, 183, 126, 0.5);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
 
   --shadow-card:
-    0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 12px 40px rgba(0, 0, 0, 0.45);
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 24px 48px -12px rgba(0, 0, 0, 0.55);
 
-  font-family: system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-  line-height: 1.5;
+  font-family:
+    'Plus Jakarta Sans',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  line-height: 1.55;
   font-weight: 400;
   color: var(--text);
   background: var(--bg);
@@ -37,8 +53,7 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background: radial-gradient(1200px 600px at 10% -10%, #1a2840 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #1a2535 0%, transparent 50%), var(--bg);
+  background: var(--bg);
 }
 
 #root {

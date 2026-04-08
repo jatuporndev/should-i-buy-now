@@ -1,4 +1,4 @@
-import type { Signal } from '@/features/quote/types'
+import type { Signal, SignalBreakdown } from '@/features/quote/types'
 
 function average(values: number[]): number {
   const sum = values.reduce((a, b) => a + b, 0)
@@ -50,14 +50,20 @@ function volumeParticipation(
  * Trend from 10- vs 30-day SMAs, filtered by RSI(14) and optional volume context.
  * Consumed by a personal UI only; does not execute trades or provide services.
  */
-export function computeSignal(
-  closes: number[],
-  volumes?: number[],
-): { signal: Signal; detail: string } {
+export function computeSignal(closes: number[], volumes?: number[]): {
+  signal: Signal
+  detail: string
+  breakdown: SignalBreakdown
+} {
   if (closes.length < 30) {
     return {
       signal: 'hold',
-      detail: 'Need at least 30 trading days of history to compare moving averages.',
+      detail:
+        'Need at least 30 trading days of history to compare moving averages.',
+      breakdown: {
+        status: 'need_history',
+        tradingDaysAvailable: closes.length,
+      },
     }
   }
 
@@ -80,11 +86,40 @@ export function computeSignal(
   const rsiRounded = rsi !== null ? Math.round(rsi) : null
   const volLevel = volumes ? volumeParticipation(volumes) : null
 
+  const volume: 'weak' | 'ok' | 'unavailable' = !volumes
+    ? 'unavailable'
+    : volLevel === 'weak'
+      ? 'weak'
+      : volLevel === 'ok'
+        ? 'ok'
+        : 'unavailable'
+
+  const maTrend: 'uptrend' | 'downtrend' | 'sideways' = bullish
+    ? 'uptrend'
+    : bearish
+      ? 'downtrend'
+      : 'sideways'
+
+  const baseOk = {
+    status: 'ok' as const,
+    lastClose: price,
+    sma10,
+    sma30,
+    rsi14: rsi,
+    volume,
+    maTrend,
+    holdFilter: null as string | null,
+  } satisfies Extract<SignalBreakdown, { status: 'ok' }>
+
   if (bullish) {
     if (rsi !== null && rsi >= 72) {
       return {
         signal: 'hold',
         detail: `Same MA uptrend as before, but RSI(14) is about ${rsiRounded}, which often means stretched short-term momentum — the model waits instead of a buy-style badge.`,
+        breakdown: {
+          ...baseOk,
+          holdFilter: `RSI(14) is ${rsiRounded} (model pauses Buys at ≥ 72).`,
+        },
       }
     }
     if (volLevel === 'weak') {
@@ -92,6 +127,11 @@ export function computeSignal(
         signal: 'hold',
         detail:
           'Price is above rising short- vs average moving averages, but recent volume is clearly below its prior norm — the model treats that as weak confirmation and stays neutral.',
+        breakdown: {
+          ...baseOk,
+          holdFilter:
+            'Recent volume is clearly below its prior norm vs the model baseline.',
+        },
       }
     }
     const rsiBit =
@@ -105,6 +145,7 @@ export function computeSignal(
     return {
       signal: 'buy',
       detail: `Price is above the 10- and 30-day averages with the short average above the longer one (uptrend).${rsiBit}${volBit}`,
+      breakdown: baseOk,
     }
   }
 
@@ -113,6 +154,10 @@ export function computeSignal(
       return {
         signal: 'hold',
         detail: `Same MA downtrend as before, but RSI(14) is about ${rsiRounded}, which often flags a potentially exhausted dip — the model avoids a sell-style badge.`,
+        breakdown: {
+          ...baseOk,
+          holdFilter: `RSI(14) is ${rsiRounded} (model avoids Sells at ≤ 28).`,
+        },
       }
     }
     const rsiBit =
@@ -122,6 +167,7 @@ export function computeSignal(
     return {
       signal: 'sell',
       detail: `Price is below the 10- and 30-day averages with the short average below the longer one (downtrend).${rsiBit}`,
+      breakdown: baseOk,
     }
   }
 
@@ -129,5 +175,6 @@ export function computeSignal(
     signal: 'hold',
     detail:
       'Price and moving averages are not aligned in a clear up or down pattern (mixed or sideways).',
+    breakdown: baseOk,
   }
 }

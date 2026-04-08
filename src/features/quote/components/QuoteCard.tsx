@@ -1,7 +1,8 @@
+import { SignalBreakdownPanel } from '@/features/quote/components/SignalBreakdownPanel'
+import { SignalBadge } from '@/features/quote/components/SignalBadge'
+import type { StockQuote } from '@/features/quote/types'
 import { formatMoney, formatPct } from '@/shared/utils/format'
 import { priceChangeClassFromPercent } from '@/shared/utils/quoteDisplay'
-import type { StockQuote } from '@/features/quote/types'
-import { SignalBadge } from '@/features/quote/components/SignalBadge'
 
 type Props = {
   quote: StockQuote
@@ -14,7 +15,7 @@ export function QuoteCard({ quote, onRefresh }: Props) {
   return (
     <>
       <div className="card-top">
-        <div>
+        <div className="card-top__main">
           <div className="ticker-row">
             <span className="symbol">{quote.symbol}</span>
             <SignalBadge signal={quote.signal} />
@@ -26,18 +27,25 @@ export function QuoteCard({ quote, onRefresh }: Props) {
             {formatMoney(quote.price, quote.currency)}
           </span>
           <span className={`price-change ${changeClass}`}>
-            {formatPct(quote.changePercent)} <span className="muted">1d</span>
+            {formatPct(quote.changePercent)}{' '}
+            <span className="muted">1d</span>
           </span>
         </div>
       </div>
 
-      <p className="signal-copy">
-        <strong>Why this badge:</strong> {quote.signalDetail}
-      </p>
+      <SignalBreakdownPanel
+        breakdown={quote.signalBreakdown}
+        currency={quote.currency}
+      />
+
+      <div className="signal-rationale">
+        <span className="signal-rationale__label">Why this badge</span>
+        <p className="signal-copy">{quote.signalDetail}</p>
+      </div>
+
       <p className="disclaimer muted">
-        Badge = your MA + RSI + volume rules on data pulled here. Yahoo’s feed
-        can lag, change, or fail; confirm price and size with your broker.
-        Bugs and bad data are possible — you alone bear trading risk.
+        Model uses MA, RSI, and volume on this series. Yahoo can lag — verify
+        price and size at your broker.
       </p>
 
       <button

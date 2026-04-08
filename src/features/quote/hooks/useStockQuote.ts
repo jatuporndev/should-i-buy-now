@@ -1,28 +1,24 @@
-import { useCallback, useEffect, useState } from 'react'
-import { fetchAmznQuote } from '@/features/quote/services/yahoo'
+import { useCallback, useState } from 'react'
+import { fetchStockQuote } from '@/features/quote/services/yahoo'
 import type { StockQuote } from '@/features/quote/types'
 
-export function useAmznQuote() {
+export function useStockQuote(symbol: string) {
   const [quote, setQuote] = useState<StockQuote | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      setQuote(await fetchAmznQuote())
+      setQuote(await fetchStockQuote(symbol))
     } catch (e) {
       setQuote(null)
       setError(e instanceof Error ? e.message : 'Could not load quote')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [symbol])
 
-  useEffect(() => {
-    void load()
-  }, [load])
-
-  return { quote, error, loading, reload: load }
+  return { quote, error, loading, load }
 }
