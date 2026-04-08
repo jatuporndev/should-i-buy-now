@@ -6,9 +6,9 @@ type Props = {
 export function QuoteLoadError({ message, onRetry }: Props) {
   return (
     <div className="error" role="alert">
-      <p>{message}</p>
-      <button type="button" className="btn" onClick={onRetry}>
-        Retry
+      <p className="error__message">{message}</p>
+      <button type="button" className="btn btn-primary btn-compact" onClick={onRetry}>
+        Try again
       </button>
     </div>
   )

@@ -1,4 +1,6 @@
 import { QuoteCard } from '@/features/quote/components/QuoteCard'
+import { QuoteCardIdle } from '@/features/quote/components/QuoteCardIdle'
+import { QuoteCardLoading } from '@/features/quote/components/QuoteCardLoading'
 import { QuoteLoadError } from '@/features/quote/components/QuoteLoadError'
 import { useStockQuote } from '@/features/quote/hooks/useStockQuote'
 import { WATCHLIST_SYMBOLS } from '@/features/quote/watchlist'
@@ -10,6 +12,7 @@ function QuoteForSymbol({ symbol }: { symbol: string }) {
 
   const cardMods = [
     'card',
+    loading && 'card--loading',
     quote && 'card--loaded',
     quote && `card--signal-${quote.signal}`,
   ]
@@ -19,33 +22,13 @@ function QuoteForSymbol({ symbol }: { symbol: string }) {
   return (
     <section className={cardMods} aria-labelledby={`quote-${symbol}-title`}>
       <h2 id={`quote-${symbol}-title`} className="sr-only">
-        {symbol} quote
+        {symbol}
       </h2>
       {idle && (
-        <div className="quote-idle">
-          <div className="quote-idle__top">
-            <span className="symbol symbol--idle">{symbol}</span>
-            <span className="quote-idle__pill">Ready to load</span>
-          </div>
-          <p className="muted quote-idle-hint">
-            Fetches Yahoo chart data only when you ask — avoids burst requests.
-          </p>
-          <button type="button" className="btn btn-primary" onClick={() => void load()}>
-            Load quote
-          </button>
-        </div>
+        <QuoteCardIdle symbol={symbol} onLoad={() => void load()} />
       )}
 
-      {loading && (
-        <div className="quote-loading" aria-busy="true" aria-live="polite">
-          <span className="quote-loading__label">Loading {symbol}</span>
-          <div className="quote-loading__bars" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-          </div>
-        </div>
-      )}
+      {loading && <QuoteCardLoading symbol={symbol} />}
 
       {error && (
         <QuoteLoadError message={error} onRetry={() => void load()} />
@@ -60,15 +43,20 @@ function QuoteForSymbol({ symbol }: { symbol: string }) {
 
 export function WatchlistSection() {
   return (
-    <>
-      <p className="watchlist-intro">
-        Watchlist: {WATCHLIST_SYMBOLS.join(', ')}
-      </p>
+    <section className="watchlist-section" aria-label="Stock watchlist">
+      <header className="watchlist-head">
+        <h2 className="watchlist-head__title">Watchlist</h2>
+        <p className="watchlist-head__symbols">{WATCHLIST_SYMBOLS.join(' · ')}</p>
+        <p className="watchlist-head__hint">
+          {WATCHLIST_SYMBOLS.length} tickers — load when you’re ready. Nothing
+          auto-refreshes.
+        </p>
+      </header>
       <div className="watchlist">
         {WATCHLIST_SYMBOLS.map((symbol) => (
           <QuoteForSymbol key={symbol} symbol={symbol} />
         ))}
       </div>
-    </>
+    </section>
   )
 }
