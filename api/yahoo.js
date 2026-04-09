@@ -1,5 +1,6 @@
 /**
- * Proxies Yahoo Finance chart API on Vercel (browser cannot call Yahoo directly; dev uses Vite proxy).
+ * Proxies Yahoo Finance requests on Vercel.
+ * Rewrites map /api/yahoo/<path>?<query> -> /api/yahoo?path=<path>&...
  */
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -9,9 +10,14 @@ export default async function handler(req, res) {
     return
   }
 
-  const { segments: raw, ...queryRest } = req.query
-  const parts = Array.isArray(raw) ? raw : raw ? [raw] : []
-  if (parts.length === 0) {
+  const rawPath = req.query.path
+  const parts = Array.isArray(rawPath)
+    ? rawPath.join('/')
+    : typeof rawPath === 'string'
+      ? rawPath
+      : ''
+
+  if (!parts) {
     res.statusCode = 400
     res.setHeader('Content-Type', 'application/json')
     res.end(JSON.stringify({ error: 'Missing Yahoo path' }))
@@ -19,8 +25,8 @@ export default async function handler(req, res) {
   }
 
   const params = new URLSearchParams()
-  for (const [k, v] of Object.entries(queryRest)) {
-    if (v === undefined) continue
+  for (const [k, v] of Object.entries(req.query)) {
+    if (k === 'path' || v === undefined) continue
     const vals = Array.isArray(v) ? v : [v]
     for (const item of vals) {
       if (typeof item === 'string') params.append(k, item)
@@ -29,8 +35,7 @@ export default async function handler(req, res) {
   const qs = params.toString()
   const search = qs ? `?${qs}` : ''
 
-  const upstream = `https://query1.finance.yahoo.com/${parts.join('/')}${search}`
-
+  const upstream = `https://query1.finance.yahoo.com/${parts}${search}`
   const yahooRes = await fetch(upstream, {
     headers: {
       'User-Agent':
