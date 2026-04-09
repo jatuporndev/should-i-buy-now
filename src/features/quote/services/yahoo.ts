@@ -56,20 +56,10 @@ export async function fetchStockQuote(symbol: string): Promise<StockQuote> {
   const upper = symbol.trim().toUpperCase()
   const encoded = encodeURIComponent(upper)
   const path = `/v8/finance/chart/${encoded}?range=3mo&interval=1d`
-  const yahooUrl = `https://query1.finance.yahoo.com${path}`
-
-  let text: string
-
-  if (import.meta.env.DEV) {
-    const local = await fetch(`/api/yahoo${path}`)
-    if (!local.ok) throw new Error(`Quote request failed (${local.status})`)
-    text = await local.text()
-  } else {
-    const wrapped = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`
-    const r = await fetch(wrapped)
-    if (!r.ok) throw new Error(`Quote request failed (${r.status})`)
-    text = await r.text()
-  }
+  // Dev: Vite proxy. Production (e.g. Vercel): /api/yahoo/* serverless route proxies Yahoo.
+  const r = await fetch(`/api/yahoo${path}`)
+  if (!r.ok) throw new Error(`Quote request failed (${r.status})`)
+  const text = await r.text()
 
   const json = JSON.parse(text) as YahooChartJson
   if (json.chart?.error || !json.chart?.result?.[0]) {
