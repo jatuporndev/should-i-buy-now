@@ -11,7 +11,8 @@ export function useStockQuote(symbol: string) {
     setLoading(true)
     setError(null)
     try {
-      setQuote(await fetchStockQuote(symbol))
+      const q = await fetchStockQuote(symbol)
+      setQuote({ ...q, lastUpdatedAt: Date.now() })
     } catch (e) {
       setQuote(null)
       setError(e instanceof Error ? e.message : 'Could not load quote')

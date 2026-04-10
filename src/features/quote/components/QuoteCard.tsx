@@ -3,7 +3,7 @@ import { SignalDecisionChart } from '@/features/quote/components/SignalDecisionC
 import { SignalBreakdownPanel } from '@/features/quote/components/SignalBreakdownPanel'
 import { SignalBadge } from '@/features/quote/components/SignalBadge'
 import type { StockQuote } from '@/features/quote/types'
-import { formatMoney, formatPct } from '@/shared/utils/format'
+import { formatLastUpdatedIct, formatMoney, formatPct } from '@/shared/utils/format'
 import { priceChangeClassFromPercent } from '@/shared/utils/quoteDisplay'
 
 type Props = {
@@ -18,20 +18,28 @@ export function QuoteCard({ quote, onRefresh }: Props) {
 
   return (
     <div className="quote-card-body">
-      <div className="quote-row-top">
-        <span className="symbol">{quote.symbol}</span>
-        <SignalBadge signal={quote.signal} emphasis />
+      <div className="quote-card-top">
+        <div className="quote-row-top__meta">
+          <span className="symbol">{quote.symbol}</span>
+          <SignalBadge signal={quote.signal} emphasis />
+        </div>
         <button
           type="button"
-          className="btn btn-primary btn-compact"
+          className="btn btn-primary btn-compact quote-card-top__update-btn"
           onClick={onRefresh}
           aria-label={`Update quote for ${quote.symbol}`}
         >
           Update
         </button>
+        <p className="quote-card-name">{quote.name}</p>
+        {quote.lastUpdatedAt != null && (
+          <p className="quote-card-updated muted">
+            <time dateTime={new Date(quote.lastUpdatedAt).toISOString()}>
+              {formatLastUpdatedIct(quote.lastUpdatedAt)}
+            </time>
+          </p>
+        )}
       </div>
-
-      <p className="quote-card-name">{quote.name}</p>
 
       <div className="quote-row-metrics">
         <div className="quote-row-metrics__price">

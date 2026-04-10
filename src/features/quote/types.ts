@@ -26,4 +26,6 @@ export type StockQuote = {
   signal: Signal
   signalDetail: string
   signalBreakdown: SignalBreakdown
+  /** When this snapshot was loaded in the app (ms); shown in UTC+7 (ICT). */
+  lastUpdatedAt?: number
 }

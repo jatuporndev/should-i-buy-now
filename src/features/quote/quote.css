@@ -166,15 +166,15 @@
 .quote-card-body {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.65rem;
 }
 
 .quote-row-top {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   justify-content: flex-start;
-  gap: 0.45rem 0.6rem;
+  gap: 0.5rem 0.65rem;
 }
 
 .quote-row-top .symbol {
@@ -182,7 +182,54 @@
   font-size: 1.1rem;
 }
 
-.quote-row-top .btn-primary {
+/* Loaded card: 2×2 grid so the date under Update doesn’t stretch the row above the company name. */
+.quote-card-top {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 0.3rem 0.65rem;
+  align-items: start;
+}
+
+.quote-row-top__meta {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.6rem;
+  min-width: 0;
+}
+
+.quote-card-top__update-btn {
+  grid-column: 2;
+  grid-row: 1;
+  margin-left: 0;
+  justify-self: end;
+  align-self: start;
+}
+
+.quote-card-top .quote-card-name {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 0;
+  padding: 0 0 0.05rem;
+}
+
+.quote-card-top .quote-card-updated {
+  grid-column: 2;
+  grid-row: 2;
+  margin: 0;
+  padding: 0;
+  margin-top: 0.1rem;
+  align-self: start;
+  justify-self: end;
+  text-align: right;
+  max-width: 13rem;
+}
+
+/* Idle / loading: primary action is a direct row child. */
+.quote-row-top > .btn-primary {
   margin-left: auto;
   flex-shrink: 0;
 }
@@ -193,7 +240,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 0.5rem 0.75rem;
-  margin-top: 0.35rem;
+  margin-top: 0.15rem;
 }
 
 .quote-row-metrics__price {
@@ -208,9 +255,22 @@
   margin-top: 0;
 }
 
+.quote-card-updated {
+  margin: 0;
+  font-size: 0.62rem;
+  line-height: 1.35;
+  letter-spacing: 0.015em;
+  text-align: right;
+  max-width: 13rem;
+}
+
+.quote-card-updated time {
+  font-variant-numeric: tabular-nums;
+}
+
 .quote-card-name {
   margin: 0;
-  padding-bottom: 0.15rem;
+  padding: 0.05rem 0 0.2rem;
   font-size: 0.75rem;
   font-weight: 500;
   line-height: 1.35;
