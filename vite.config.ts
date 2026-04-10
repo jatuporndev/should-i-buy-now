@@ -15,9 +15,11 @@ function watchlistCsvProxy(mode: string) {
       '/api/watchlist-csv': {
         target: `${u.protocol}//${u.host}`,
         changeOrigin: true,
-        rewrite: (path) => {
+        rewrite: (reqPath: string) => {
           const dest = new URL(raw)
-          const q = path.includes('?') ? path.slice(path.indexOf('?') + 1) : ''
+          const q = reqPath.includes('?')
+            ? reqPath.slice(reqPath.indexOf('?') + 1)
+            : ''
           for (const [k, v] of new URLSearchParams(q)) {
             dest.searchParams.set(k, v)
           }
@@ -46,7 +48,8 @@ export default defineConfig(({ mode }) => {
         '/api/yahoo': {
           target: 'https://query1.finance.yahoo.com',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/yahoo/, ''),
+          rewrite: (reqPath: string) =>
+            reqPath.replace(/^\/api\/yahoo/, ''),
         },
         ...(sheetProxy ?? {}),
       },
@@ -56,7 +59,8 @@ export default defineConfig(({ mode }) => {
         '/api/yahoo': {
           target: 'https://query1.finance.yahoo.com',
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api\/yahoo/, ''),
+          rewrite: (reqPath: string) =>
+            reqPath.replace(/^\/api\/yahoo/, ''),
         },
         ...(sheetProxy ?? {}),
       },
