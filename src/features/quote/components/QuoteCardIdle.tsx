@@ -25,7 +25,8 @@ export function QuoteCardIdle({ symbol, onLoad }: Props) {
       </div>
 
       <p className="quote-card-name muted">
-        Latest Yahoo daily bar. Tap Load — no background requests.
+        Long-term signal from ~2 years of daily Yahoo data. Tap Load — no
+        background requests.
       </p>
 
       <div className="quote-row-metrics">

@@ -15,8 +15,9 @@ export default function App() {
             <div className="header__titles">
               <h1 className="title">Should I buy?</h1>
               <p className="tagline">
-                Simple buy / sell / hold from daily Yahoo data. You choose when
-                to fetch — we don’t poll in the background.
+                Long-term buy / sell / hold from daily Yahoo data (50- & 200-day
+                trend model). You choose when to fetch — we don’t poll in the
+                background.
               </p>
             </div>
           </div>
@@ -32,8 +33,9 @@ export default function App() {
       <footer className="app-footer">
         <div className="app-footer__inner">
           <p className="app-footer__disclaimer">
-            Not advice. Data can be late or wrong — double-check your broker. You
-            own the risk.
+            Not advice. Signals are a long-term daily trend read (50- & 200-day
+            averages), not day trading. Data can be late or wrong — double-check
+            your broker. You own the risk.
           </p>
         </div>
       </footer>

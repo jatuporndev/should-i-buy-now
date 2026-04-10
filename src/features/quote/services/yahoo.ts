@@ -55,7 +55,7 @@ function parseClosesAndVolumes(raw: YahooChartJson): {
 export async function fetchStockQuote(symbol: string): Promise<StockQuote> {
   const upper = symbol.trim().toUpperCase()
   const encoded = encodeURIComponent(upper)
-  const path = `/v8/finance/chart/${encoded}?range=3mo&interval=1d`
+  const path = `/v8/finance/chart/${encoded}?range=2y&interval=1d`
   // Dev: Vite proxy. Production (e.g. Vercel): /api/yahoo/* serverless route proxies Yahoo.
   const r = await fetch(`/api/yahoo${path}`)
   if (!r.ok) throw new Error(`Quote request failed (${r.status})`)

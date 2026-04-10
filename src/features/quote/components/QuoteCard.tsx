@@ -1,4 +1,5 @@
 import { useId, useState } from 'react'
+import { SignalDecisionChart } from '@/features/quote/components/SignalDecisionChart'
 import { SignalBreakdownPanel } from '@/features/quote/components/SignalBreakdownPanel'
 import { SignalBadge } from '@/features/quote/components/SignalBadge'
 import type { StockQuote } from '@/features/quote/types'
@@ -62,14 +63,20 @@ export function QuoteCard({ quote, onRefresh }: Props) {
           currency={quote.currency}
         />
 
+        <SignalDecisionChart
+          closes={quote.closes}
+          currency={quote.currency}
+          signal={quote.signal}
+        />
+
         <div className="signal-rationale">
           <span className="signal-rationale__label">Model note</span>
           <p className="signal-copy">{quote.signalDetail}</p>
         </div>
 
         <p className="disclaimer muted">
-          Uses daily closes from Yahoo (MA, RSI, volume). Confirm live prices
-          with your broker.
+          Long-term heuristic (50- & 200-day MAs, RSI, volume on daily closes).
+          Not advice — confirm live prices with your broker.
         </p>
       </div>
     </div>

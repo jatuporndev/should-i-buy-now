@@ -6,8 +6,8 @@ export type SignalBreakdown =
   | {
       status: 'ok'
       lastClose: number
-      sma10: number
-      sma30: number
+      sma50: number
+      sma200: number
       rsi14: number | null
       volume: 'weak' | 'ok' | 'unavailable'
       maTrend: 'uptrend' | 'downtrend' | 'sideways'

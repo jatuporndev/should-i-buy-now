@@ -1,4 +1,7 @@
-/** Default tickers shown in the app (Yahoo Finance symbols). */
-export const WATCHLIST_SYMBOLS = ['AMZN', 'META', 'RKLB', 'EOSE'] as const
-
-export type WatchlistSymbol = (typeof WATCHLIST_SYMBOLS)[number]
+/** Default tickers when `VITE_WATCHLIST_CSV_URL` is unset (Yahoo Finance symbols). */
+export const DEFAULT_WATCHLIST_SYMBOLS = [
+  'AMZN',
+  'META',
+  'RKLB',
+  'EOSE',
+] as const

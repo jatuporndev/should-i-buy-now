@@ -3,7 +3,7 @@ import { QuoteCardIdle } from '@/features/quote/components/QuoteCardIdle'
 import { QuoteCardLoading } from '@/features/quote/components/QuoteCardLoading'
 import { QuoteLoadError } from '@/features/quote/components/QuoteLoadError'
 import { useStockQuote } from '@/features/quote/hooks/useStockQuote'
-import { WATCHLIST_SYMBOLS } from '@/features/quote/watchlist'
+import { useWatchlist } from '@/features/quote/hooks/useWatchlist'
 import '@/features/quote/quote.css'
 
 function QuoteForSymbol({ symbol }: { symbol: string }) {
@@ -42,21 +42,53 @@ function QuoteForSymbol({ symbol }: { symbol: string }) {
 }
 
 export function WatchlistSection() {
+  const watchlist = useWatchlist()
+
   return (
     <section className="watchlist-section" aria-label="Stock watchlist">
       <header className="watchlist-head">
         <h2 className="watchlist-head__title">Watchlist</h2>
-        <p className="watchlist-head__symbols">{WATCHLIST_SYMBOLS.join(' · ')}</p>
-        <p className="watchlist-head__hint">
-          {WATCHLIST_SYMBOLS.length} tickers — load when you’re ready. Nothing
-          auto-refreshes.
-        </p>
+        {watchlist.status === 'loading' && (
+          <p className="watchlist-head__symbols">Loading…</p>
+        )}
+        {watchlist.status === 'error' && (
+          <p className="watchlist-head__symbols">Couldn’t load list</p>
+        )}
+        {watchlist.status === 'ok' && (
+          <>
+            <p className="watchlist-head__symbols">
+              {watchlist.symbols.join(' · ')}
+            </p>
+            <p className="watchlist-head__hint">
+              {watchlist.symbols.length} tickers — load when you’re ready.
+              Nothing auto-refreshes.
+            </p>
+          </>
+        )}
       </header>
-      <div className="watchlist">
-        {WATCHLIST_SYMBOLS.map((symbol) => (
-          <QuoteForSymbol key={symbol} symbol={symbol} />
-        ))}
-      </div>
+
+      {watchlist.status === 'error' && (
+        <div className="error watchlist-error" role="alert">
+          <p className="error__message">{watchlist.error}</p>
+          {watchlist.hasRemoteUrl && (
+            <button
+              type="button"
+              className="btn btn-primary btn-compact"
+              onClick={() => watchlist.retry()}
+            >
+              Try again
+            </button>
+          )}
+        </div>
+      )}
+
+      {watchlist.status === 'ok' && (
+        <div className="watchlist">
+          {watchlist.symbols.map((symbol) => (
+            <QuoteForSymbol key={symbol} symbol={symbol} />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

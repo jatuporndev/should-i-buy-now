@@ -22,7 +22,7 @@ export function QuoteCardLoading({ symbol }: Props) {
         </button>
       </div>
 
-      <p className="quote-card-name muted">Fetching quote…</p>
+      <p className="quote-card-name muted">Fetching daily history for long-term signal…</p>
 
       <div className="quote-row-metrics">
         <div className="quote-row-metrics__price">

@@ -10,22 +10,22 @@ function volumeLabel(
   v: Extract<SignalBreakdown, { status: 'ok' }>['volume'],
 ): string {
   if (v === 'weak') {
-    return 'Below recent norm — weak confirmation for Buys'
+    return 'Below longer-run norm — weak confirmation for long-term Buys'
   }
   if (v === 'ok') {
-    return 'Typical or stronger vs the model baseline'
+    return 'Typical or stronger vs the long-term volume baseline'
   }
   return 'Not used (missing or unreliable in this feed)'
 }
 
 function trendLabel(t: Extract<SignalBreakdown, { status: 'ok' }>['maTrend']) {
   if (t === 'uptrend') {
-    return 'Uptrend pattern (price above rising 10d & 30d averages)'
+    return 'Long-term uptrend (price above rising 50d & 200d averages)'
   }
   if (t === 'downtrend') {
-    return 'Downtrend pattern (price below falling 10d & 30d averages)'
+    return 'Long-term downtrend (price below falling 50d & 200d averages)'
   }
-  return 'Mixed / sideways — averages do not line up cleanly'
+  return 'Mixed / sideways — 50d & 200d do not line up cleanly'
 }
 
 export function SignalBreakdownPanel({ breakdown, currency }: Props) {
@@ -33,20 +33,25 @@ export function SignalBreakdownPanel({ breakdown, currency }: Props) {
     return (
       <div className="signal-breakdown" role="region" aria-label="Signal inputs">
         <h3 className="signal-breakdown__title">What drives the badge</h3>
+        <p className="signal-breakdown__horizon">Long-term view only.</p>
         <p className="signal-breakdown__note">
-          Need at least 30 trading days of closes; this feed has{' '}
-          {breakdown.tradingDaysAvailable} usable day(s) so far.
+          Need at least 200 trading days of closes for the 200-day average; this
+          feed has {breakdown.tradingDaysAvailable} usable day(s) so far.
         </p>
       </div>
     )
   }
 
-  const { lastClose, sma10, sma30, rsi14, volume, maTrend, holdFilter } =
+  const { lastClose, sma50, sma200, rsi14, volume, maTrend, holdFilter } =
     breakdown
 
   return (
     <div className="signal-breakdown" role="region" aria-label="Signal inputs">
       <h3 className="signal-breakdown__title">What drives the badge</h3>
+      <p className="signal-breakdown__horizon">
+        Long-term view — daily 50- & 200-day trend model (not a short-term
+        trade signal).
+      </p>
       <p className="signal-breakdown__lede muted">
         Same rules as the paragraph below — numbers are from the daily series
         used for the model.
@@ -57,12 +62,12 @@ export function SignalBreakdownPanel({ breakdown, currency }: Props) {
           <dd>{formatMoney(lastClose, currency)}</dd>
         </div>
         <div>
-          <dt>10-day SMA</dt>
-          <dd>{formatMoney(sma10, currency)}</dd>
+          <dt>50-day SMA</dt>
+          <dd>{formatMoney(sma50, currency)}</dd>
         </div>
         <div>
-          <dt>30-day SMA</dt>
-          <dd>{formatMoney(sma30, currency)}</dd>
+          <dt>200-day SMA</dt>
+          <dd>{formatMoney(sma200, currency)}</dd>
         </div>
         <div>
           <dt>RSI(14)</dt>
