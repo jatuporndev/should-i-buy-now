@@ -9,11 +9,17 @@ import { priceChangeClassFromPercent } from '@/shared/utils/quoteDisplay'
 type Props = {
   quote: StockQuote
   onRefresh: () => void
+  /** When true, the reasoning panel starts expanded (e.g. Discover detail pane). */
+  defaultDetailsOpen?: boolean
 }
 
-export function QuoteCard({ quote, onRefresh }: Props) {
+export function QuoteCard({
+  quote,
+  onRefresh,
+  defaultDetailsOpen = false,
+}: Props) {
   const detailsId = useId()
-  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(defaultDetailsOpen)
   const changeClass = priceChangeClassFromPercent(quote.changePercent)
 
   return (

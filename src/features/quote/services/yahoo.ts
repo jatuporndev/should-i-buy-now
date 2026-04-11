@@ -25,6 +25,44 @@ type YahooChartJson = {
   }
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((r) => setTimeout(r, ms))
+}
+
+/**
+ * Yahoo often returns 429 when too many requests share one IP (Vercel, dev reloads).
+ * Retry with backoff; respect Retry-After when present.
+ */
+async function fetchChartResponse(path: string): Promise<Response> {
+  const url = `/api/yahoo${path}`
+  const maxAttempts = 5
+  let last: Response | null = null
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    last = await fetch(url)
+    if (last.ok) return last
+    if (last.status !== 429 && last.status !== 503) return last
+
+    if (attempt < maxAttempts - 1) {
+      const ra = last.headers.get('Retry-After')
+      let delayMs = 800 * Math.pow(2, attempt)
+      if (ra) {
+        const sec = Number.parseInt(ra, 10)
+        if (!Number.isNaN(sec) && sec > 0) {
+          delayMs = Math.max(delayMs, sec * 1000)
+        }
+      }
+      delayMs = Math.min(delayMs, 12_000)
+      await sleep(delayMs)
+    }
+  }
+
+  return last!
+}
+
+/** Same symbol requested while a fetch is in flight (e.g. React Strict Mode) — share one upstream call. */
+const inFlightBySymbol = new Map<string, Promise<StockQuote>>()
+
 /** Keeps closes and volumes aligned by trading day (skip rows with invalid close). */
 function parseClosesAndVolumes(raw: YahooChartJson): {
   closes: number[]
@@ -52,13 +90,20 @@ function parseClosesAndVolumes(raw: YahooChartJson): {
   return { closes, volumes }
 }
 
-export async function fetchStockQuote(symbol: string): Promise<StockQuote> {
-  const upper = symbol.trim().toUpperCase()
-  const encoded = encodeURIComponent(upper)
+async function fetchStockQuoteOnce(symbolUpper: string): Promise<StockQuote> {
+  const encoded = encodeURIComponent(symbolUpper)
   const path = `/v8/finance/chart/${encoded}?range=2y&interval=1d`
-  // Dev: Vite proxy. Production (e.g. Vercel): /api/yahoo/* serverless route proxies Yahoo.
-  const r = await fetch(`/api/yahoo${path}`)
-  if (!r.ok) throw new Error(`Quote request failed (${r.status})`)
+  const r = await fetchChartResponse(path)
+
+  if (r.status === 429) {
+    throw new Error(
+      'Yahoo rate limit (429). Wait a few seconds and try again.',
+    )
+  }
+  if (!r.ok) {
+    throw new Error(`Quote request failed (${r.status})`)
+  }
+
   const text = await r.text()
 
   const json = JSON.parse(text) as YahooChartJson
@@ -106,8 +151,8 @@ export async function fetchStockQuote(symbol: string): Promise<StockQuote> {
   const { signal, detail, breakdown } = computeSignal(closes, volumes)
 
   return {
-    symbol: meta?.symbol ?? upper,
-    name: meta?.longName ?? meta?.shortName ?? upper,
+    symbol: meta?.symbol ?? symbolUpper,
+    name: meta?.longName ?? meta?.shortName ?? symbolUpper,
     currency: meta?.currency ?? 'USD',
     price,
     previousClose: Number.isFinite(prev) ? prev : price,
@@ -117,4 +162,16 @@ export async function fetchStockQuote(symbol: string): Promise<StockQuote> {
     signalDetail: detail,
     signalBreakdown: breakdown,
   }
+}
+
+export async function fetchStockQuote(symbol: string): Promise<StockQuote> {
+  const upper = symbol.trim().toUpperCase()
+  const existing = inFlightBySymbol.get(upper)
+  if (existing) return existing
+
+  const p = fetchStockQuoteOnce(upper).finally(() => {
+    inFlightBySymbol.delete(upper)
+  })
+  inFlightBySymbol.set(upper, p)
+  return p
 }

@@ -1,7 +1,43 @@
 /**
  * Proxies Yahoo Finance requests on Vercel.
  * Rewrites map /api/yahoo/<path>?<query> -> /api/yahoo?path=<path>&...
+ * Retries on 429/503 — shared serverless IPs often hit Yahoo rate limits.
  */
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms))
+}
+
+async function fetchYahooWithRetry(upstream) {
+  const headers = {
+    'User-Agent':
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    Accept: 'application/json,text/plain,*/*',
+    'Accept-Language': 'en-US,en;q=0.9',
+  }
+
+  const maxAttempts = 5
+  let lastRes = null
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    lastRes = await fetch(upstream, { headers })
+    if (lastRes.ok) return lastRes
+    if (lastRes.status !== 429 && lastRes.status !== 503) return lastRes
+
+    if (attempt < maxAttempts - 1) {
+      const ra = lastRes.headers.get('Retry-After')
+      let delayMs = 800 * Math.pow(2, attempt)
+      if (ra) {
+        const sec = parseInt(ra, 10)
+        if (!Number.isNaN(sec) && sec > 0) delayMs = Math.max(delayMs, sec * 1000)
+      }
+      delayMs = Math.min(delayMs, 12_000)
+      await sleep(delayMs)
+    }
+  }
+
+  return lastRes
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET')
@@ -36,14 +72,7 @@ export default async function handler(req, res) {
   const search = qs ? `?${qs}` : ''
 
   const upstream = `https://query1.finance.yahoo.com/${parts}${search}`
-  const yahooRes = await fetch(upstream, {
-    headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      Accept: 'application/json,text/plain,*/*',
-      'Accept-Language': 'en-US,en;q=0.9',
-    },
-  })
+  const yahooRes = await fetchYahooWithRetry(upstream)
 
   const body = await yahooRes.text()
   const ct = yahooRes.headers.get('content-type')
