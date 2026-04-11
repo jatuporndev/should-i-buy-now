@@ -284,6 +284,14 @@
   gap: 0.35rem;
 }
 
+.app-nav__menu button.app-nav__link {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  background: none;
+}
+
 .app-nav__link {
   display: block;
   padding: 0.55rem 0.65rem;
@@ -389,6 +397,115 @@
   line-height: 1.6;
   color: var(--muted);
   max-width: 42rem;
+}
+
+.app-header-mobile__subnav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-top: 0.65rem;
+}
+
+.app-header-mobile__subnav-sep {
+  color: var(--border);
+  font-size: 0.75rem;
+  user-select: none;
+}
+
+.app-header-mobile__subnav-btn {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--muted) 45%, transparent);
+  text-underline-offset: 3px;
+  transition: color 0.14s ease;
+}
+
+.app-header-mobile__subnav-btn:hover {
+  color: var(--heading);
+}
+
+.app-header-mobile__subnav-btn:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.app-header-mobile__subnav-btn--active {
+  color: var(--accent);
+  text-decoration: none;
+  cursor: default;
+}
+
+.how-it-works {
+  max-width: 38rem;
+}
+
+.how-it-works__title {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.25rem, 3vw, 1.45rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  color: var(--heading);
+}
+
+.how-it-works__lead {
+  margin: 0 0 1.35rem;
+  font-size: 0.94rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.how-it-works__section {
+  margin-bottom: 1.35rem;
+}
+
+.how-it-works__section:last-child {
+  margin-bottom: 0;
+}
+
+.how-it-works__h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--heading);
+  letter-spacing: -0.01em;
+}
+
+.how-it-works__section p {
+  margin: 0 0 0.65rem;
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: color-mix(in srgb, var(--heading) 88%, var(--muted));
+}
+
+.how-it-works__section p:last-child {
+  margin-bottom: 0;
+}
+
+.how-it-works__list {
+  margin: 0 0 0.65rem;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: color-mix(in srgb, var(--heading) 88%, var(--muted));
+}
+
+.how-it-works__list li {
+  margin-bottom: 0.45rem;
+}
+
+.how-it-works__list li:last-child {
+  margin-bottom: 0;
 }
 
 /* Mobile: original full-width shell — no sidebar / hamburger / Discover top bar */

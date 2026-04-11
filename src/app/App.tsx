@@ -1,8 +1,16 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { HowItWorks } from '@/app/HowItWorks'
 import { WatchlistSection } from '@/features/quote/WatchlistSection'
 import '@/app/app.css'
 
 const GITHUB_REPO_URL = 'https://github.com/jatuporndev/should-i-buy-now'
+
+type AppPage = 'discover' | 'how-it-works'
+
+function pageFromHash(): AppPage {
+  if (typeof window === 'undefined') return 'discover'
+  return window.location.hash === '#how-it-works' ? 'how-it-works' : 'discover'
+}
 
 function GitHubRepoLink({ className }: { className?: string }) {
   return (
@@ -30,10 +38,30 @@ function GitHubRepoLink({ className }: { className?: string }) {
 
 export default function App() {
   const [navOpen, setNavOpen] = useState(false)
+  const [page, setPage] = useState<AppPage>(() => pageFromHash())
 
   const closeNav = useCallback(() => {
     setNavOpen(false)
   }, [])
+
+  useEffect(() => {
+    const onHashChange = () => setPage(pageFromHash())
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
+  const go = useCallback(
+    (next: AppPage) => {
+      const hash = next === 'how-it-works' ? '#how-it-works' : '#discover'
+      if (window.location.hash !== hash) {
+        window.location.hash = hash
+      } else {
+        setPage(next)
+      }
+      closeNav()
+    },
+    [closeNav],
+  )
 
   return (
     <div className="app-root">
@@ -52,6 +80,39 @@ export default function App() {
                 trend model). You choose when to fetch — we don’t poll in the
                 background.
               </p>
+              <nav
+                className="app-header-mobile__subnav"
+                aria-label="Sections"
+              >
+                <button
+                  type="button"
+                  className={[
+                    'app-header-mobile__subnav-btn',
+                    page === 'discover' && 'app-header-mobile__subnav-btn--active',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onClick={() => go('discover')}
+                >
+                  Discover
+                </button>
+                <span className="app-header-mobile__subnav-sep" aria-hidden>
+                  ·
+                </span>
+                <button
+                  type="button"
+                  className={[
+                    'app-header-mobile__subnav-btn',
+                    page === 'how-it-works' &&
+                      'app-header-mobile__subnav-btn--active',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  onClick={() => go('how-it-works')}
+                >
+                  How it works
+                </button>
+              </nav>
             </div>
           </div>
           <GitHubRepoLink />
@@ -103,21 +164,41 @@ export default function App() {
           </div>
 
           <nav className="app-nav__menu" aria-label="Main">
-            <a
-              href="#main-content"
-              className="app-nav__link app-nav__link--active"
-              aria-current="page"
-              onClick={closeNav}
+            <button
+              type="button"
+              className={[
+                'app-nav__link',
+                page === 'discover' && 'app-nav__link--active',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              aria-current={page === 'discover' ? 'page' : undefined}
+              onClick={() => go('discover')}
             >
               Discover
-            </a>
+            </button>
+            <button
+              type="button"
+              className={[
+                'app-nav__link',
+                page === 'how-it-works' && 'app-nav__link--active',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              aria-current={page === 'how-it-works' ? 'page' : undefined}
+              onClick={() => go('how-it-works')}
+            >
+              How it works
+            </button>
           </nav>
         </aside>
 
         <div className="app-column">
           <header className="app-topbar">
             <div className="app-topbar__inner">
-              <h1 className="app-page-title">Discover</h1>
+              <h1 className="app-page-title">
+                {page === 'discover' ? 'Discover' : 'How it works'}
+              </h1>
               <GitHubRepoLink />
             </div>
           </header>
@@ -125,7 +206,11 @@ export default function App() {
           <div className="app-scroll">
             <main className="app-main" id="main-content">
               <div className="app-main__inner">
-                <WatchlistSection />
+                {page === 'discover' ? (
+                  <WatchlistSection />
+                ) : (
+                  <HowItWorks />
+                )}
               </div>
             </main>
 
