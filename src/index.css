@@ -1,14 +1,15 @@
 :root {
-  --bg: #0a0b0c;
-  --bg-elevated: #101214;
-  --surface: #14161a;
-  --surface-2: #1a1d22;
-  --surface-hover: #22262c;
-  --border: rgba(245, 240, 230, 0.07);
-  --border-strong: rgba(245, 240, 230, 0.12);
-  --text: #e4e6e9;
-  --heading: #f2f3f6;
-  --muted: #90959e;
+  /* Primary brand: green accent — unchanged; neutral dark surfaces (minimal) */
+  --bg: #080a0c;
+  --bg-elevated: #0c0f12;
+  --surface: #12161b;
+  --surface-2: #181d24;
+  --surface-hover: #1f252d;
+  --border: rgba(255, 255, 255, 0.055);
+  --border-strong: rgba(255, 255, 255, 0.1);
+  --text: #e4e7eb;
+  --heading: #f4f6f8;
+  --muted: #8b939e;
 
   --main: #7fb77e;
   --buy: var(--main);
@@ -16,28 +17,31 @@
   --hold: #7eb8ff;
 
   --accent: var(--main);
-  --accent-dim: rgba(127, 183, 126, 0.12);
-  --ring: rgba(127, 183, 126, 0.45);
+  --accent-dim: rgba(127, 183, 126, 0.1);
+  --ring: rgba(127, 183, 126, 0.42);
+  /* RSI line: distinct from MA green so the chart stays readable */
+  --chart-rsi: #c9a227;
 
   --radius-sm: 6px;
-  --radius-md: 10px;
+  --radius-md: 8px;
   --radius-lg: 12px;
 
-  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 12px 28px -16px rgba(0, 0, 0, 0.65);
+  --shadow-card:
+    0 1px 0 rgba(255, 255, 255, 0.04) inset,
+    0 12px 32px -20px rgba(0, 0, 0, 0.65);
 
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI',
-    Roboto, sans-serif;
-  --font-display: 'Fraunces', 'Georgia', serif;
+  --font-sans:
+    'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   font-family: var(--font-sans);
   line-height: 1.55;
   font-weight: 400;
   color: var(--text);
   background-color: var(--bg);
+  /* Subtle top wash — keeps green presence without visual noise */
   background-image: radial-gradient(
-    120% 80% at 50% -20%,
-    rgba(127, 183, 126, 0.045) 0%,
+    100% 60% at 50% -15%,
+    rgba(127, 183, 126, 0.035) 0%,
     transparent 55%
   );
   background-attachment: fixed;
@@ -65,11 +69,15 @@ body {
 }
 
 h1 {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.03em;
   color: var(--heading);
 }
 
 h2 {
-  font-family: inherit;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.02em;
   color: var(--heading);
 }
