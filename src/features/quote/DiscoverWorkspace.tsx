@@ -72,21 +72,16 @@ export function DiscoverWorkspace({ githubSlot, footer }: DiscoverWorkspaceProps
     return watchlist.symbols
   }, [watchlist.status, watchlist.symbols])
 
-  const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null)
+  const [userSymbol, setUserSymbol] = useState<string | null>(null)
   const [watchlistOpen, setWatchlistOpen] = useState(false)
 
-  useEffect(() => {
-    if (symbolsList.length === 0) {
-      setSelectedSymbol(null)
-      return
+  const selectedSymbol = useMemo((): string | null => {
+    if (symbolsList.length === 0) return null
+    if (userSymbol != null && symbolsList.includes(userSymbol)) {
+      return userSymbol
     }
-    setSelectedSymbol((current) => {
-      if (current != null && symbolsList.includes(current)) {
-        return current
-      }
-      return symbolsList[0]!
-    })
-  }, [symbolsList])
+    return symbolsList[0]!
+  }, [symbolsList, userSymbol])
 
   const closeDrawer = useCallback(() => setWatchlistOpen(false), [])
 
@@ -107,7 +102,7 @@ export function DiscoverWorkspace({ githubSlot, footer }: DiscoverWorkspaceProps
             <QuoteWorkspaceBar
               symbols={watchlist.symbols}
               selectedSymbol={selectedSymbol}
-              onSelectSymbol={setSelectedSymbol}
+              onSelectSymbol={setUserSymbol}
               watchlistOpen={watchlistOpen}
               onToggleWatchlist={() => setWatchlistOpen((v) => !v)}
               trailingSlot={isDesktop ? githubSlot : null}
@@ -225,7 +220,7 @@ export function DiscoverWorkspace({ githubSlot, footer }: DiscoverWorkspaceProps
                                     .filter(Boolean)
                                     .join(' ')}
                                   onClick={() => {
-                                    setSelectedSymbol(sym)
+                                    setUserSymbol(sym)
                                     if (!isDesktop) closeDrawer()
                                   }}
                                 >

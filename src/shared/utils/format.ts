@@ -2,6 +2,8 @@ export function formatMoney(n: number, currency: string): string {
   return new Intl.NumberFormat(undefined, {
     style: 'currency',
     currency,
+    /** Avoid "US$" on iPhone / many non-US locales where `symbol` disambiguates USD. */
+    currencyDisplay: 'narrowSymbol',
     maximumFractionDigits: 2,
   }).format(n)
 }

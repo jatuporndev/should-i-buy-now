@@ -9,6 +9,7 @@ import {
   Filler,
   type ChartConfiguration,
   type Plugin,
+  type Scale,
 } from 'chart.js'
 import { buildLongTermChartPoints } from '@/features/quote/utils/chartSeries'
 import { useMatchMedia } from '@/shared/hooks/useMatchMedia'
@@ -171,6 +172,34 @@ const CHART_TICK_FONT = {
 const CHART_TICK_MUTED = '#9a9a9a'
 const CHART_TICK_GATE = '#c4c4c4'
 
+/** Shorter Y-axis labels on mobile so the price scale can match the RSI band width. */
+function formatMoneyYAxisNarrow(n: number, currency: string): string {
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency,
+    currencyDisplay: 'narrowSymbol',
+    notation: 'compact',
+    maximumSignificantDigits: 3,
+  }).format(n)
+}
+
+/** Desktop: minimum Y-axis width from price ticks; paired charts grow to the same width. */
+function measureDesktopYAxisGutterPx(currency: string, yMin: number, yMax: number): number {
+  if (typeof document === 'undefined') return 76
+  const ctx = document.createElement('canvas').getContext('2d')
+  if (!ctx) return 76
+  ctx.font = `${CHART_TICK_FONT.weight} ${CHART_TICK_FONT.size}px ${CHART_TICK_FONT.family}`
+  const mid = (yMin + yMax) / 2
+  let maxLabel = 0
+  for (const v of [yMax, mid, yMin]) {
+    if (typeof v === 'number' && Number.isFinite(v)) {
+      maxLabel = Math.max(maxLabel, ctx.measureText(formatMoney(v, currency)).width)
+    }
+  }
+  const tickPadding = 26
+  return Math.ceil(maxLabel + tickPadding * 2 + 8)
+}
+
 type Props = {
   closes: number[]
   closeTimestamps?: number[]
@@ -212,10 +241,25 @@ export function LongTermDashboardChart({ closes, closeTimestamps, currency }: Pr
     } as const
 
     const layoutPadding = narrowChart
-      ? { top: 8, right: 4, bottom: 8, left: 6 }
+      ? { top: 6, right: 6, bottom: 6, left: 10 }
       : { top: 12, right: 14, bottom: 12, left: 20 }
-    const yTickPadding = narrowChart ? 10 : 26
+    const yTickPadding = narrowChart ? 8 : 26
     const tickFont = narrowChart ? { ...CHART_TICK_FONT, size: 9 } : CHART_TICK_FONT
+
+    /** Mobile: RSI lays out first; its Y width is the reference for the price chart. */
+    const mobileRsiYBand = { w: 0 }
+
+    let desktopYAxisGutterPx = 0
+    let yPairWidth = { w: 0 }
+    let alignDesktopYPair: ((scale: Scale) => void) | undefined
+    if (!narrowChart) {
+      desktopYAxisGutterPx = measureDesktopYAxisGutterPx(currency, built.yMin, built.yMax)
+      yPairWidth = { w: desktopYAxisGutterPx }
+      alignDesktopYPair = (scale: Scale) => {
+        yPairWidth.w = Math.max(yPairWidth.w, scale.width)
+        scale.width = yPairWidth.w
+      }
+    }
 
     const commonOptions = {
       responsive: true,
@@ -243,124 +287,153 @@ export function LongTermDashboardChart({ closes, closeTimestamps, currency }: Pr
       compact: narrowChart,
     })
 
-    priceChartRef.current = new Chart(priceCanvasRef.current, {
-      type: 'line',
-      plugins: [priceCrosshairPlugin],
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Close',
-            data: closesOnly,
-            borderColor: COLORS.price,
-            backgroundColor: 'rgba(255, 255, 255, 0.07)',
-            borderWidth: 1.5,
-            tension: 0.2,
-            fill: 'start',
-            pointRadius: 0,
-            pointHoverRadius: 0,
-          },
-          {
-            label: 'SMA 50',
-            data: sma50s,
-            borderColor: COLORS.sma50,
-            borderWidth: 1.25,
-            tension: 0.2,
-            fill: false,
-            pointRadius: 0,
-            pointHoverRadius: 0,
-          },
-          {
-            label: 'SMA 200',
-            data: sma200s,
-            borderColor: COLORS.sma200,
-            borderWidth: 1.25,
-            tension: 0.2,
-            fill: false,
-            pointRadius: 0,
-            pointHoverRadius: 0,
-          },
-        ],
+    const priceDatasets = [
+      {
+        label: 'Close',
+        data: closesOnly,
+        borderColor: COLORS.price,
+        backgroundColor: 'rgba(255, 255, 255, 0.07)',
+        borderWidth: 1.5,
+        tension: 0.2,
+        fill: 'start' as const,
+        pointRadius: 0,
+        pointHoverRadius: 0,
       },
-      options: {
-        ...commonOptions,
-        scales: {
-          ...hiddenX,
-          y: {
-            position: 'left',
-            min: built.yMin,
-            max: built.yMax,
-            ...yAxisNoGrid,
-            afterBuildTicks: (scale) => {
-              const lo = scale.min
-              const hi = scale.max
-              scale.ticks = [
-                { value: hi },
-                { value: (lo + hi) / 2 },
-                { value: lo },
-              ]
-            },
-            ticks: {
-              display: true,
-              autoSkip: false,
-              /** Default `crossAlign` is `'far'`, which ignores `padding` — use `'near'` so gap label ↔ plot works */
-              crossAlign: 'near',
-              font: { ...tickFont },
-              color: CHART_TICK_MUTED,
-              padding: yTickPadding,
-              callback: (v) => formatMoney(Number(v), currency),
-            },
-          },
-        },
+      {
+        label: 'SMA 50',
+        data: sma50s,
+        borderColor: COLORS.sma50,
+        borderWidth: 1.25,
+        tension: 0.2,
+        fill: false,
+        pointRadius: 0,
+        pointHoverRadius: 0,
       },
-    })
+      {
+        label: 'SMA 200',
+        data: sma200s,
+        borderColor: COLORS.sma200,
+        borderWidth: 1.25,
+        tension: 0.2,
+        fill: false,
+        pointRadius: 0,
+        pointHoverRadius: 0,
+      },
+    ]
 
-    rsiChartRef.current = new Chart(rsiCanvasRef.current, {
-      type: 'line',
-      plugins: [rsiDecorationPlugin],
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'RSI(14)',
-            data: rsi14,
-            borderColor: COLORS.rsi,
-            borderWidth: 1.75,
-            tension: 0.2,
-            pointRadius: 0,
-            pointHoverRadius: 0,
-          },
-        ],
+    const rsiDataset = {
+      label: 'RSI(14)',
+      data: rsi14,
+      borderColor: COLORS.rsi,
+      borderWidth: 1.75,
+      tension: 0.2,
+      pointRadius: 0,
+      pointHoverRadius: 0,
+    }
+
+    const priceYScale = {
+      position: 'left' as const,
+      min: built.yMin,
+      max: built.yMax,
+      ...yAxisNoGrid,
+      ...(narrowChart
+        ? {
+            afterFit: (scale: Scale) => {
+              if (mobileRsiYBand.w > 0) scale.width = mobileRsiYBand.w
+            },
+          }
+        : {
+            beforeFit: () => {
+              yPairWidth.w = desktopYAxisGutterPx
+            },
+            afterFit: alignDesktopYPair!,
+          }),
+      afterBuildTicks: (scale: Scale) => {
+        const lo = scale.min
+        const hi = scale.max
+        scale.ticks = [
+          { value: hi },
+          { value: (lo + hi) / 2 },
+          { value: lo },
+        ]
       },
+      ticks: {
+        display: true,
+        autoSkip: false,
+        crossAlign: 'near' as const,
+        font: { ...tickFont },
+        color: CHART_TICK_MUTED,
+        padding: yTickPadding,
+        callback: (v: string | number) =>
+          narrowChart
+            ? formatMoneyYAxisNarrow(Number(v), currency)
+            : formatMoney(Number(v), currency),
+      },
+    }
+
+    const rsiYScale = {
+      position: 'left' as const,
+      min: 0,
+      max: 100,
+      ...yAxisNoGrid,
+      ...(narrowChart
+        ? {
+            afterFit: (scale: Scale) => {
+              mobileRsiYBand.w = scale.width
+            },
+          }
+        : { afterFit: alignDesktopYPair! }),
+      afterBuildTicks: (scale: Scale) => {
+        scale.ticks = [100, 72, 50, 28, 0].map((value) => ({ value }))
+      },
+      ticks: {
+        display: true,
+        autoSkip: false,
+        crossAlign: 'near' as const,
+        font: { ...tickFont },
+        padding: yTickPadding,
+        color: (ctx: { tick?: { value?: number } }) => {
+          const v = ctx.tick?.value
+          if (v === RSI_GATE_HIGH || v === RSI_GATE_LOW) return CHART_TICK_GATE
+          return CHART_TICK_MUTED
+        },
+        callback: (raw: string | number) => String(Math.round(Number(raw))),
+      },
+    }
+
+    const priceConfig = {
+      type: 'line' as const,
+      plugins: [priceCrosshairPlugin],
+      data: { labels, datasets: priceDatasets },
       options: {
         ...commonOptions,
         scales: {
           ...hiddenX,
-          y: {
-            position: 'left',
-            min: 0,
-            max: 100,
-            ...yAxisNoGrid,
-            afterBuildTicks: (scale) => {
-              scale.ticks = [100, 72, 50, 28, 0].map((value) => ({ value }))
-            },
-            ticks: {
-              display: true,
-              autoSkip: false,
-              crossAlign: 'near',
-              font: { ...tickFont },
-              padding: yTickPadding,
-              color: (ctx) => {
-                const v = ctx.tick?.value
-                if (v === RSI_GATE_HIGH || v === RSI_GATE_LOW) return CHART_TICK_GATE
-                return CHART_TICK_MUTED
-              },
-              callback: (raw) => String(Math.round(Number(raw))),
-            },
-          },
+          y: priceYScale,
         },
       },
-    })
+    }
+
+    const rsiConfig = {
+      type: 'line' as const,
+      plugins: [rsiDecorationPlugin],
+      data: { labels, datasets: [rsiDataset] },
+      options: {
+        ...commonOptions,
+        scales: {
+          ...hiddenX,
+          y: rsiYScale,
+        },
+      },
+    }
+
+    if (narrowChart) {
+      rsiChartRef.current = new Chart(rsiCanvasRef.current, rsiConfig)
+      priceChartRef.current = new Chart(priceCanvasRef.current, priceConfig)
+    } else {
+      priceChartRef.current = new Chart(priceCanvasRef.current, priceConfig)
+      rsiChartRef.current = new Chart(rsiCanvasRef.current, rsiConfig)
+    }
 
     return () => {
       priceChartRef.current?.destroy()
