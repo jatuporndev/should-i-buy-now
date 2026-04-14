@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { HowItWorks } from '@/app/HowItWorks'
-import { WatchlistSection } from '@/features/quote/WatchlistSection'
+import { DiscoverWorkspace } from '@/features/quote/DiscoverWorkspace'
 import '@/app/app.css'
 
 const GITHUB_REPO_URL = 'https://github.com/jatuporndev/should-i-buy-now'
@@ -94,7 +94,7 @@ export default function App() {
                     .join(' ')}
                   onClick={() => go('discover')}
                 >
-                  Discover
+                  Dashboard
                 </button>
                 <span className="app-header-mobile__subnav-sep" aria-hidden>
                   ·
@@ -175,7 +175,7 @@ export default function App() {
               aria-current={page === 'discover' ? 'page' : undefined}
               onClick={() => go('discover')}
             >
-              Discover
+              Dashboard
             </button>
             <button
               type="button"
@@ -194,36 +194,49 @@ export default function App() {
         </aside>
 
         <div className="app-column">
-          <header className="app-topbar">
-            <div className="app-topbar__inner">
-              <h1 className="app-page-title">
-                {page === 'discover' ? 'Discover' : 'How it works'}
-              </h1>
-              <GitHubRepoLink />
-            </div>
-          </header>
+          {page === 'discover' ? (
+            <DiscoverWorkspace
+              githubSlot={<GitHubRepoLink />}
+              footer={
+                <footer className="app-footer">
+                  <div className="app-footer__inner">
+                    <p className="app-footer__disclaimer">
+                      Not advice. Signals are a long-term daily trend read (50- & 200-day
+                      averages), not day trading. Data can be late or wrong — double-check
+                      your broker. You own the risk.
+                    </p>
+                  </div>
+                </footer>
+              }
+            />
+          ) : (
+            <>
+              <header className="app-topbar">
+                <div className="app-topbar__inner">
+                  <h1 className="app-page-title">How it works</h1>
+                  <GitHubRepoLink />
+                </div>
+              </header>
 
-          <div className="app-scroll">
-            <main className="app-main" id="main-content">
-              <div className="app-main__inner">
-                {page === 'discover' ? (
-                  <WatchlistSection />
-                ) : (
-                  <HowItWorks />
-                )}
-              </div>
-            </main>
+              <div className="app-scroll">
+                <main className="app-main" id="main-content">
+                  <div className="app-main__inner">
+                    <HowItWorks />
+                  </div>
+                </main>
 
-            <footer className="app-footer">
-              <div className="app-footer__inner">
-                <p className="app-footer__disclaimer">
-                  Not advice. Signals are a long-term daily trend read (50- & 200-day
-                  averages), not day trading. Data can be late or wrong — double-check
-                  your broker. You own the risk.
-                </p>
+                <footer className="app-footer">
+                  <div className="app-footer__inner">
+                    <p className="app-footer__disclaimer">
+                      Not advice. Signals are a long-term daily trend read (50- & 200-day
+                      averages), not day trading. Data can be late or wrong — double-check
+                      your broker. You own the risk.
+                    </p>
+                  </div>
+                </footer>
               </div>
-            </footer>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>

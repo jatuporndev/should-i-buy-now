@@ -76,8 +76,7 @@ export function SignalDecisionChart({ closes, currency, signal }: Props) {
   const built = buildLongTermChartPoints(closes, 260)
   if (!built) {
     return (
-      <div className="signal-chart signal-chart--empty" role="status">
-        <h4 className="signal-chart__title">Decision chart</h4>
+      <div className="signal-chart signal-chart--empty signal-chart--embedded" role="status">
         <p className="signal-chart__note muted">
           Chart needs at least 200 trading days of closes (200-day average).
         </p>
@@ -103,22 +102,24 @@ export function SignalDecisionChart({ closes, currency, signal }: Props) {
   const ariaLabel = `Long-term chart over ${count} trading days: close, 50 and 200-day moving averages, and RSI 14 with gates at ${RSI_GATE_HIGH} and ${RSI_GATE_LOW}. Current model decision is ${signalLabel(signal)}.`
 
   return (
-    <div className="signal-chart" role="region" aria-label={ariaLabel}>
+    <div className="signal-chart signal-chart--embedded" role="region" aria-label={ariaLabel}>
       <div className="signal-chart__head">
-        <h4 className="signal-chart__title">Decision chart</h4>
         <p className="signal-chart__meta">
           <span className={`signal-chart__decision signal-chart__decision--${signal}`}>
             {signalLabel(signal)}
           </span>
           <span className="signal-chart__range muted">
-            Last {count} trading days · price + RSI(14) vs model gates
+            Last {count} trading days · price + RSI(14) vs gates
           </span>
         </p>
       </div>
 
-      <p className="signal-chart__subtitle muted">
-        RSI(14) matches the badge: Buys pause when RSI ≥ {RSI_GATE_HIGH}; in
-        downtrends, Sells are avoided when RSI ≤ {RSI_GATE_LOW} (Hold instead).
+      <p
+        className="signal-chart__subtitle muted"
+        title={`RSI(14) matches the badge: Buys pause when RSI ≥ ${RSI_GATE_HIGH}; in downtrends, Sells are avoided when RSI ≤ ${RSI_GATE_LOW} (Hold instead).`}
+      >
+        Gates: Buys pause if RSI ≥ {RSI_GATE_HIGH}; Sells avoided if RSI ≤{' '}
+        {RSI_GATE_LOW} in downtrends.
       </p>
 
       <svg
@@ -316,23 +317,26 @@ export function SignalDecisionChart({ closes, currency, signal }: Props) {
       </svg>
 
       <ul className="signal-chart__legend">
-        <li>
+        <li title="Daily close (area under the line)">
           <span className="signal-chart__swatch signal-chart__swatch--close" />
           Close
         </li>
-        <li>
+        <li title="50-day simple moving average of close">
           <span className="signal-chart__swatch signal-chart__swatch--50" />
           50-day SMA
         </li>
-        <li>
+        <li title="200-day simple moving average of close">
           <span className="signal-chart__swatch signal-chart__swatch--200" />
           200-day SMA
         </li>
-        <li>
+        <li title="14-period Wilder RSI on closes">
           <span className="signal-chart__swatch signal-chart__swatch--rsi" />
           RSI(14)
         </li>
-        <li className="signal-chart__legend-gates">
+        <li
+          className="signal-chart__legend-gates"
+          title={`Model uses RSI gates at ${RSI_GATE_HIGH} (overbought) and ${RSI_GATE_LOW} (oversold)`}
+        >
           <span className="signal-chart__swatch signal-chart__swatch--gate" />
           Gates {RSI_GATE_HIGH} / {RSI_GATE_LOW}
         </li>
