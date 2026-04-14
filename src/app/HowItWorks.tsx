@@ -16,7 +16,7 @@ export function HowItWorks() {
           The trend model
         </h3>
         <p>
-          Each ticker uses about two years of <strong>daily closing prices</strong>{' '}
+          Each symbol uses about two years of <strong>daily closing prices</strong>{' '}
           from Yahoo Finance. From that series we derive:
         </p>
         <ul className="how-it-works__list">

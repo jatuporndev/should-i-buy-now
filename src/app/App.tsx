@@ -201,9 +201,8 @@ export default function App() {
                 <footer className="app-footer">
                   <div className="app-footer__inner">
                     <p className="app-footer__disclaimer">
-                      Not advice. Signals are a long-term daily trend read (50- & 200-day
-                      averages), not day trading. Data can be late or wrong — double-check
-                      your broker. You own the risk.
+                      Long-term heuristic (50- &amp; 200-day MAs, RSI, volume on daily
+                      closes). Not advice — confirm live prices with your broker.
                     </p>
                   </div>
                 </footer>
@@ -228,9 +227,8 @@ export default function App() {
                 <footer className="app-footer">
                   <div className="app-footer__inner">
                     <p className="app-footer__disclaimer">
-                      Not advice. Signals are a long-term daily trend read (50- & 200-day
-                      averages), not day trading. Data can be late or wrong — double-check
-                      your broker. You own the risk.
+                      Long-term heuristic (50- &amp; 200-day MAs, RSI, volume on daily
+                      closes). Not advice — confirm live prices with your broker.
                     </p>
                   </div>
                 </footer>

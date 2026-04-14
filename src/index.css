@@ -1,15 +1,14 @@
 :root {
-  /* Primary brand: green accent — unchanged; neutral dark surfaces (minimal) */
-  --bg: #080a0c;
-  --bg-elevated: #0c0f12;
-  --surface: #12161b;
-  --surface-2: #181d24;
-  --surface-hover: #1f252d;
-  --border: rgba(255, 255, 255, 0.055);
-  --border-strong: rgba(255, 255, 255, 0.1);
-  --text: #e4e7eb;
-  --heading: #f4f6f8;
-  --muted: #8b939e;
+  --bg: #0b0e14;
+  --bg-elevated: #161b22;
+  --surface: #161b22;
+  --surface-2: #0d1117;
+  --surface-hover: #21262d;
+  --border: #30363d;
+  --border-strong: #484f58;
+  --text: #e6edf3;
+  --heading: #f0f3f6;
+  --muted: #8b949e;
 
   --main: #7fb77e;
   --buy: var(--main);
@@ -19,8 +18,8 @@
   --accent: var(--main);
   --accent-dim: rgba(127, 183, 126, 0.1);
   --ring: rgba(127, 183, 126, 0.42);
-  /* RSI line: distinct from MA green so the chart stays readable */
-  --chart-rsi: #c9a227;
+  --chart-rsi: #d4a32c;
+  --model-note-label: #58a6ff;
 
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -31,17 +30,16 @@
     0 12px 32px -20px rgba(0, 0, 0, 0.65);
 
   --font-sans:
-    'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   font-family: var(--font-sans);
   line-height: 1.55;
   font-weight: 400;
   color: var(--text);
   background-color: var(--bg);
-  /* Subtle top wash — keeps green presence without visual noise */
   background-image: radial-gradient(
     100% 60% at 50% -15%,
-    rgba(127, 183, 126, 0.035) 0%,
+    rgba(127, 183, 126, 0.04) 0%,
     transparent 55%
   );
   background-attachment: fixed;
@@ -70,14 +68,14 @@ body {
 
 h1 {
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.03em;
   color: var(--heading);
 }
 
 h2 {
   font-family: var(--font-sans);
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: -0.02em;
   color: var(--heading);
 }

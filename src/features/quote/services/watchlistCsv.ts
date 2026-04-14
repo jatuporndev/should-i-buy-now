@@ -49,7 +49,7 @@ export async function fetchWatchlistSymbols(csvUrl: string): Promise<string[]> {
   const text = await r.text()
   const symbols = parseWatchlistCsv(text)
   if (symbols.length === 0) {
-    throw new Error('No valid tickers found in the watchlist CSV')
+    throw new Error('No valid symbols found in the watchlist CSV')
   }
   return symbols
 }

@@ -95,7 +95,7 @@ export function DiscoverWorkspace({ githubSlot, footer }: DiscoverWorkspaceProps
     const n = watchlist.symbols.length
     headHint =
       n > 1
-        ? `Pick a ticker in the bar or list. Loads on demand — nothing auto-refreshes.`
+        ? `Pick a symbol in the bar or list. Loads on demand — nothing auto-refreshes.`
         : `Loads when ready. Nothing auto-refreshes after load.`
   }
 
@@ -161,7 +161,7 @@ export function DiscoverWorkspace({ githubSlot, footer }: DiscoverWorkspaceProps
                     {selectedSymbol == null ? (
                       <div className="discover-detail-placeholder card card--detail">
                         <p className="muted discover-detail-placeholder__text">
-                          No tickers in the list.
+                          No symbols in the list.
                         </p>
                       </div>
                     ) : (
@@ -202,7 +202,7 @@ export function DiscoverWorkspace({ githubSlot, footer }: DiscoverWorkspaceProps
                         <ul
                           className="watchlist-picker workspace-drawer__list"
                           role="listbox"
-                          aria-label="Watchlist tickers"
+                          aria-label="Watchlist symbols"
                           aria-activedescendant={
                             selectedSymbol
                               ? `watchlist-opt-${selectedSymbol}`
