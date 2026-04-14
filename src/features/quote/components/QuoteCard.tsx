@@ -146,7 +146,7 @@ export function QuoteCard({
         </header>
 
         <div className="quote-dashboard">
-          <div className="quote-dashboard__main">
+          <div className="quote-dashboard__lead">
             <div className="dashboard-hero">
               <div className="dashboard-hero__head">
                 <span className="dashboard-hero__ticker symbol">{quote.symbol}</span>
@@ -163,12 +163,6 @@ export function QuoteCard({
             </div>
 
             <WorkspaceStatusBadges breakdown={quote.signalBreakdown} />
-
-            <div className="dashboard-chart-shell">
-              {chartBlock}
-            </div>
-
-            <p className="dashboard-inline-disclaimer muted">{disclaimerText}</p>
           </div>
 
           <aside className="quote-dashboard__aside" aria-label="Recommendation and stats">
@@ -293,6 +287,14 @@ export function QuoteCard({
               <p className="dashboard-model-note__body muted">{quote.signalDetail}</p>
             </div>
           </aside>
+
+          <div className="quote-dashboard__chart">
+            <div className="dashboard-chart-shell">
+              {chartBlock}
+            </div>
+
+            <p className="dashboard-inline-disclaimer muted">{disclaimerText}</p>
+          </div>
         </div>
       </div>
     )
