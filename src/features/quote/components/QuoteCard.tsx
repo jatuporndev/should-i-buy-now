@@ -94,7 +94,11 @@ export function QuoteCard({
       <p className="analysis-card__lede analysis-card__lede--dense muted">
         Daily closes · 50/200 SMA · RSI(14) vs gates 72 / 28
       </p>
-      <LongTermDashboardChart closes={quote.closes} currency={quote.currency} />
+      <LongTermDashboardChart
+        closes={quote.closes}
+        closeTimestamps={quote.closeTimestamps}
+        currency={quote.currency}
+      />
     </div>
   )
 

@@ -63,30 +63,38 @@ async function fetchChartResponse(path: string): Promise<Response> {
 /** Same symbol requested while a fetch is in flight (e.g. React Strict Mode) — share one upstream call. */
 const inFlightBySymbol = new Map<string, Promise<StockQuote>>()
 
-/** Keeps closes and volumes aligned by trading day (skip rows with invalid close). */
+/** Keeps closes, timestamps, and volumes aligned by trading day (skip rows with invalid close). */
 function parseClosesAndVolumes(raw: YahooChartJson): {
   closes: number[]
+  timestamps: number[]
   volumes: number[] | undefined
 } {
-  const quote = raw.chart?.result?.[0]?.indicators?.quote?.[0]
+  const row = raw.chart?.result?.[0]
+  const quote = row?.indicators?.quote?.[0]
+  const wall = row?.timestamp
   const close = quote?.close
   const volume = quote?.volume
-  if (!close?.length) return { closes: [], volumes: undefined }
+  if (!close?.length) return { closes: [], timestamps: [], volumes: undefined }
 
   const closes: number[] = []
+  const timestamps: number[] = []
   const vols: number[] = []
 
   for (let i = 0; i < close.length; i++) {
     const c = close[i]
     if (typeof c !== 'number' || Number.isNaN(c)) continue
     closes.push(c)
+    const t = wall?.[i]
+    timestamps.push(
+      typeof t === 'number' && Number.isFinite(t) ? t : Number.NaN,
+    )
     const vv = volume?.[i]
     const v =
       typeof vv === 'number' && !Number.isNaN(vv) && vv >= 0 ? vv : Number.NaN
     vols.push(v)
   }
 
-  return { closes, volumes: volume ? vols : undefined }
+  return { closes, timestamps, volumes: volume ? vols : undefined }
 }
 
 async function fetchStockQuoteOnce(symbolUpper: string): Promise<StockQuote> {
@@ -112,7 +120,7 @@ async function fetchStockQuoteOnce(symbolUpper: string): Promise<StockQuote> {
 
   const row = json.chart.result[0]
   const meta = row.meta
-  const { closes, volumes } = parseClosesAndVolumes(json)
+  const { closes, timestamps, volumes } = parseClosesAndVolumes(json)
 
   const price =
     meta?.regularMarketPrice ??
@@ -157,6 +165,7 @@ async function fetchStockQuoteOnce(symbolUpper: string): Promise<StockQuote> {
     previousClose: Number.isFinite(prev) ? prev : price,
     changePercent,
     closes,
+    closeTimestamps: timestamps,
     signal,
     signalDetail: detail,
     signalBreakdown: breakdown,

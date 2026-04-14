@@ -23,6 +23,8 @@ export type StockQuote = {
   previousClose: number
   changePercent: number
   closes: number[]
+  /** Unix seconds per trading day, same length and order as `closes` (when provided by the feed). */
+  closeTimestamps?: number[]
   signal: Signal
   signalDetail: string
   signalBreakdown: SignalBreakdown

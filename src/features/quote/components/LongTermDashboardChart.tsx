@@ -6,20 +6,23 @@ import {
   PointElement,
   LinearScale,
   CategoryScale,
+  Filler,
   type ChartConfiguration,
   type Plugin,
 } from 'chart.js'
 import { buildLongTermChartPoints } from '@/features/quote/utils/chartSeries'
-import { formatMoney } from '@/shared/utils/format'
+import { useMatchMedia } from '@/shared/hooks/useMatchMedia'
+import { formatChartDateTimeIct, formatMoney } from '@/shared/utils/format'
 
-Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale)
+Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler)
 
 const RSI_GATE_HIGH = 72
 const RSI_GATE_LOW = 28
 
+/** Keep in sync with `index.css` chart tokens. */
 const COLORS = {
-  price: '#ffffff',
-  sma50: '#58a6ff',
+  price: '#f0f0f0',
+  sma50: '#6eb0ff',
   sma200: '#7fb77e',
   /** --chart-rsi */
   rsi: '#d4a32c',
@@ -59,7 +62,7 @@ const rsiDecorationPlugin: Plugin = {
     ctx.lineTo(right, y50)
     ctx.stroke()
 
-    ctx.strokeStyle = 'rgba(126, 184, 255, 0.42)'
+    ctx.strokeStyle = 'rgba(176, 176, 176, 0.5)'
     ctx.setLineDash([4, 4])
     for (const g of [RSI_GATE_HIGH, RSI_GATE_LOW]) {
       const y = yAxis.getPixelForValue(g)
@@ -73,6 +76,91 @@ const rsiDecorationPlugin: Plugin = {
   },
 }
 
+type PriceCrosshairOpts = {
+  closesOnly: number[]
+  barTimestampsSec: (number | null)[]
+  currency: string
+  compact: boolean
+}
+
+/** Vertical hover line + on-canvas time & close price at that bar. */
+function createPriceCrosshairPlugin(opts: PriceCrosshairOpts): Plugin {
+  return {
+    id: 'priceHoverCrosshair',
+    afterDatasetsDraw(chart) {
+      const active = chart.getActiveElements()
+      if (!active.length) return
+      const { ctx, chartArea } = chart
+      if (!chartArea) return
+      const idx = active[0]!.index
+      const meta = chart.getDatasetMeta(0)
+      const pt = meta.data[idx] as { x?: number } | undefined
+      const x = pt && typeof pt.x === 'number' ? pt.x : undefined
+      if (x === undefined) return
+
+      const sec = opts.barTimestampsSec[idx]
+      const rawClose = opts.closesOnly[idx]
+      const timeStr =
+        sec != null ? formatChartDateTimeIct(sec) : 'No time'
+      const priceStr =
+        typeof rawClose === 'number' && Number.isFinite(rawClose)
+          ? formatMoney(rawClose, opts.currency)
+          : '—'
+
+      const fontSize = opts.compact ? 9 : 10
+      const padX = opts.compact ? 8 : 10
+      const padY = opts.compact ? 6 : 8
+      const lineGap = opts.compact ? 2 : 3
+
+      ctx.save()
+      ctx.font = `${CHART_TICK_FONT.weight} ${fontSize}px ${CHART_TICK_FONT.family}`
+      ctx.textBaseline = 'middle'
+      const w = Math.max(
+        ctx.measureText(timeStr).width,
+        ctx.measureText(priceStr).width,
+      )
+      const lineH = fontSize + lineGap
+      const boxW = w + padX * 2
+      const boxH = lineH * 2 + padY * 2 - lineGap
+
+      let boxLeft = x - boxW / 2
+      const margin = 4
+      if (boxLeft < chartArea.left + margin) {
+        boxLeft = chartArea.left + margin
+      }
+      if (boxLeft + boxW > chartArea.right - margin) {
+        boxLeft = chartArea.right - margin - boxW
+      }
+      const boxTop = chartArea.top + margin
+
+      ctx.fillStyle = 'rgba(28, 28, 30, 0.94)'
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)'
+      ctx.lineWidth = 1
+      const r = 4
+      ctx.beginPath()
+      ctx.roundRect(boxLeft, boxTop, boxW, boxH, r)
+      ctx.fill()
+      ctx.stroke()
+
+      ctx.fillStyle = '#c8c8c8'
+      const cx = boxLeft + padX
+      let ty = boxTop + padY + fontSize / 2
+      ctx.fillText(timeStr, cx, ty)
+      ty += lineH
+      ctx.fillStyle = COLORS.price
+      ctx.fillText(priceStr, cx, ty)
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      ctx.moveTo(x, chartArea.top)
+      ctx.lineTo(x, chartArea.bottom)
+      ctx.stroke()
+      ctx.restore()
+    },
+  }
+}
+
 /** ~8px label stack; matches legacy `.signal-chart__axis` */
 const CHART_TICK_FONT = {
   size: 10,
@@ -80,24 +168,26 @@ const CHART_TICK_FONT = {
   weight: 500,
 } as const
 
-const CHART_TICK_MUTED = '#8b949e'
-const CHART_TICK_GATE = '#9ec5e8'
+const CHART_TICK_MUTED = '#9a9a9a'
+const CHART_TICK_GATE = '#c4c4c4'
 
 type Props = {
   closes: number[]
+  closeTimestamps?: number[]
   currency: string
 }
 
-export function LongTermDashboardChart({ closes, currency }: Props) {
+export function LongTermDashboardChart({ closes, closeTimestamps, currency }: Props) {
   const priceCanvasRef = useRef<HTMLCanvasElement>(null)
   const rsiCanvasRef = useRef<HTMLCanvasElement>(null)
   const priceChartRef = useRef<Chart | null>(null)
   const rsiChartRef = useRef<Chart | null>(null)
+  const narrowChart = useMatchMedia('(max-width: 768px)')
 
-  const preview = buildLongTermChartPoints(closes, 260)
+  const preview = buildLongTermChartPoints(closes, 260, closeTimestamps)
 
   useEffect(() => {
-    const built = buildLongTermChartPoints(closes, 260)
+    const built = buildLongTermChartPoints(closes, 260, closeTimestamps)
     priceChartRef.current?.destroy()
     rsiChartRef.current?.destroy()
     priceChartRef.current = null
@@ -105,7 +195,7 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
 
     if (!built || !priceCanvasRef.current || !rsiCanvasRef.current) return
 
-    const { points, rsi14 } = built
+    const { points, rsi14, barTimestampsSec } = built
     const n = points.length
     const labels = blankLabels(n)
     const closesOnly = points.map((p) => p.close)
@@ -121,14 +211,19 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
       },
     } as const
 
+    const layoutPadding = narrowChart
+      ? { top: 8, right: 4, bottom: 8, left: 6 }
+      : { top: 12, right: 14, bottom: 12, left: 20 }
+    const yTickPadding = narrowChart ? 10 : 26
+    const tickFont = narrowChart ? { ...CHART_TICK_FONT, size: 9 } : CHART_TICK_FONT
+
     const commonOptions = {
       responsive: true,
       maintainAspectRatio: false,
       animation: false,
       interaction: { intersect: false, mode: 'index' as const },
       layout: {
-        /* Inset chart area; extra left inset reserves space so Y labels sit off the plot */
-        padding: { top: 12, right: 14, bottom: 12, left: 20 },
+        padding: layoutPadding,
       },
       plugins: {
         legend: { display: false },
@@ -141,8 +236,16 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
       grid: { display: false, drawTicks: false, drawOnChartArea: false },
     } as const
 
+    const priceCrosshairPlugin = createPriceCrosshairPlugin({
+      closesOnly,
+      barTimestampsSec,
+      currency,
+      compact: narrowChart,
+    })
+
     priceChartRef.current = new Chart(priceCanvasRef.current, {
       type: 'line',
+      plugins: [priceCrosshairPlugin],
       data: {
         labels,
         datasets: [
@@ -150,8 +253,10 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
             label: 'Close',
             data: closesOnly,
             borderColor: COLORS.price,
+            backgroundColor: 'rgba(255, 255, 255, 0.07)',
             borderWidth: 1.5,
             tension: 0.2,
+            fill: 'start',
             pointRadius: 0,
             pointHoverRadius: 0,
           },
@@ -161,6 +266,7 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
             borderColor: COLORS.sma50,
             borderWidth: 1.25,
             tension: 0.2,
+            fill: false,
             pointRadius: 0,
             pointHoverRadius: 0,
           },
@@ -170,6 +276,7 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
             borderColor: COLORS.sma200,
             borderWidth: 1.25,
             tension: 0.2,
+            fill: false,
             pointRadius: 0,
             pointHoverRadius: 0,
           },
@@ -198,9 +305,9 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
               autoSkip: false,
               /** Default `crossAlign` is `'far'`, which ignores `padding` — use `'near'` so gap label ↔ plot works */
               crossAlign: 'near',
-              font: { ...CHART_TICK_FONT },
+              font: { ...tickFont },
               color: CHART_TICK_MUTED,
-              padding: 26,
+              padding: yTickPadding,
               callback: (v) => formatMoney(Number(v), currency),
             },
           },
@@ -241,8 +348,8 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
               display: true,
               autoSkip: false,
               crossAlign: 'near',
-              font: { ...CHART_TICK_FONT },
-              padding: 26,
+              font: { ...tickFont },
+              padding: yTickPadding,
               color: (ctx) => {
                 const v = ctx.tick?.value
                 if (v === RSI_GATE_HIGH || v === RSI_GATE_LOW) return CHART_TICK_GATE
@@ -261,7 +368,7 @@ export function LongTermDashboardChart({ closes, currency }: Props) {
       priceChartRef.current = null
       rsiChartRef.current = null
     }
-  }, [closes, currency])
+  }, [closes, closeTimestamps, currency, narrowChart])
 
   if (!preview) {
     return (

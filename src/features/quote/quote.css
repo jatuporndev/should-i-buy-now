@@ -1550,11 +1550,8 @@
   margin: 0 0 0.7rem;
   padding: 0.7rem 0.8rem;
   border-radius: var(--radius-md);
-  background: var(--bg-elevated);
-  border-left: 2px solid var(--accent);
-  border-top: 1px solid var(--border);
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  background: var(--model-note-bg);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
 }
 
 .signal-rationale__label {
@@ -2496,7 +2493,7 @@
 .dashboard-chart-shell {
   border-radius: var(--radius-md);
   border: 0.5px solid var(--border);
-  background: var(--surface);
+  background: var(--surface-2);
   padding: 1rem 1rem 1.1rem;
   min-width: 0;
 }
@@ -2569,6 +2566,34 @@
   height: 180px;
 }
 
+@media (max-width: 768px) {
+  .card--detail {
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+  }
+
+  .dashboard-chart-shell {
+    padding: 0.6rem 0.45rem 0.7rem;
+  }
+
+  .dashboard-chart__canvas-wrap--price {
+    height: 168px;
+  }
+
+  .dashboard-chart__canvas-wrap--rsi {
+    height: 140px;
+  }
+
+  .dashboard-chart {
+    gap: 0.75rem;
+  }
+
+  .dashboard-chart__legend {
+    font-size: 0.62rem;
+    line-height: 1.42;
+  }
+}
+
 .dashboard-chart__legend {
   display: flex;
   flex-direction: column;
@@ -2632,7 +2657,7 @@
 }
 
 .dashboard-chart__swatch--sma50 {
-  background: #58a6ff;
+  background: var(--chart-sma50);
   height: 3px;
 }
 
@@ -2651,7 +2676,7 @@
   height: 0;
   margin-top: 0.45em;
   border: none;
-  border-bottom: 2px dashed rgba(126, 184, 255, 0.65);
+  border-bottom: 2px dashed rgba(176, 176, 176, 0.5);
   background: transparent;
   border-radius: 0;
 }
@@ -2747,7 +2772,7 @@
   background: color-mix(in srgb, var(--hold) 10%, var(--surface-2));
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--hold) 35%, transparent),
-    0 0 22px color-mix(in srgb, var(--hold) 12%, transparent);
+    0 2px 6px rgba(0, 0, 0, 0.45);
 }
 
 .dashboard-stat-grid {
@@ -2831,8 +2856,8 @@
 .dashboard-model-note {
   padding: 0.55rem 0.5rem;
   border-radius: var(--radius-md);
-  border: 0.5px solid var(--border);
-  background: var(--surface-2);
+  border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+  background: var(--model-note-bg);
 }
 
 .dashboard-model-note__label {
@@ -2842,7 +2867,7 @@
   font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: var(--model-note-label);
+  color: var(--accent);
 }
 
 .dashboard-model-note__body {
