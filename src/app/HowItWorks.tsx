@@ -5,9 +5,10 @@ export function HowItWorks() {
         How it works
       </h2>
       <p className="how-it-works__lead">
-        This app reads long-term daily price trends — not intraday moves or news.
-        Signals are computed only after you load data; nothing polls your
-        watchlist in the background.
+        This app gives you Buy, Hold, or Sell recommendations based on long-term
+        daily price trends — not intraday moves or news. Recommendations are
+        computed only after you load data; nothing polls your watchlist in the
+        background.
       </p>
 
       <section className="how-it-works__section" aria-labelledby="how-model">
@@ -49,22 +50,24 @@ export function HowItWorks() {
 
       <section className="how-it-works__section" aria-labelledby="how-badges">
         <h3 id="how-badges" className="how-it-works__h3">
-          What Buy, Sell, and Hold mean here
+          What our recommendations mean
         </h3>
         <ul className="how-it-works__list">
           <li>
-            <strong>Buy</strong> — Long-term structure is up: price is above both
-            averages in a bullish alignment (50-day above 200-day), and filters
-            (RSI, volume) do not block the badge.
+            <strong>Buy</strong> — We recommend buying. The long-term trend is in
+            your favor: price is above both averages in a bullish alignment
+            (50-day above 200-day), and momentum and volume confirm the move.
           </li>
           <li>
-            <strong>Sell</strong> — Long-term structure is down: price is below
-            both averages in a bearish alignment, and RSI is not in the deep
-            oversold zone that makes the model pause.
+            <strong>Sell</strong> — We recommend selling or avoiding new
+            positions. The long-term trend has turned against this stock: price
+            is below both averages in a bearish alignment, and RSI is not in the
+            deep oversold zone where a bounce could be near.
           </li>
           <li>
-            <strong>Hold</strong> — Anything else: mixed or sideways trend,
-            filters applied, not enough history, or data issues.
+            <strong>Hold</strong> — We recommend waiting. Conditions are not
+            clear enough to act — the trend may be mixed, a filter (RSI or
+            volume) flagged caution, or there is not enough data yet.
           </li>
         </ul>
       </section>
@@ -75,9 +78,9 @@ export function HowItWorks() {
         </h3>
         <p>
           Quotes come from Yahoo’s public endpoints; they can be delayed, revised,
-          or rate-limited. This is a personal decision-support sketch,{' '}
-          <strong>not financial advice</strong>. Check your broker and your own
-          plan before acting.
+          or rate-limited. Our recommendations are based on a mechanical model —
+          always confirm live prices with your broker and consider your own risk
+          tolerance before acting.
         </p>
       </section>
     </article>

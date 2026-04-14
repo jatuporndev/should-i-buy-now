@@ -35,7 +35,7 @@ function sleep(ms: number): Promise<void> {
  */
 async function fetchChartResponse(path: string): Promise<Response> {
   const url = `/api/yahoo${path}`
-  const maxAttempts = 5
+  const maxAttempts = 3
   let last: Response | null = null
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -86,8 +86,7 @@ function parseClosesAndVolumes(raw: YahooChartJson): {
     vols.push(v)
   }
 
-  const volumes = vols.some((x) => Number.isNaN(x)) ? undefined : vols
-  return { closes, volumes }
+  return { closes, volumes: volume ? vols : undefined }
 }
 
 async function fetchStockQuoteOnce(symbolUpper: string): Promise<StockQuote> {

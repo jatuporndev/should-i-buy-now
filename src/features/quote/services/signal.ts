@@ -9,15 +9,29 @@ function average(values: number[]): number {
   return sum / values.length
 }
 
+/** Average of finite values only; returns 0 when none are valid. */
+function finiteAverage(values: number[]): { avg: number; count: number } {
+  let sum = 0
+  let count = 0
+  for (const v of values) {
+    if (Number.isFinite(v)) {
+      sum += v
+      count++
+    }
+  }
+  return { avg: count > 0 ? sum / count : 0, count }
+}
+
 /** Recent ~1 month vs prior ~4 months of volume; null = not enough data. */
 function volumeParticipation(
   volumes: number[],
 ): 'weak' | 'ok' | null {
   if (volumes.length < 120) return null
-  const recent = average(volumes.slice(-20))
-  const baseline = average(volumes.slice(-100, -20))
-  if (baseline === 0) return null
-  return recent < baseline * 0.85 ? 'weak' : 'ok'
+  const recent = finiteAverage(volumes.slice(-20))
+  const baseline = finiteAverage(volumes.slice(-100, -20))
+  if (recent.count < 10 || baseline.count < 40) return null
+  if (baseline.avg === 0) return null
+  return recent.avg < baseline.avg * 0.85 ? 'weak' : 'ok'
 }
 
 /**
@@ -33,7 +47,7 @@ export function computeSignal(closes: number[], volumes?: number[]): {
     return {
       signal: 'hold',
       detail:
-        'Need at least 200 trading days of history to compute the 200-day average for this long-term model.',
+        'Not enough data to make a recommendation yet — need at least 200 trading days of history for the 200-day average.',
       breakdown: {
         status: 'need_history',
         tradingDaysAvailable: closes.length,
@@ -89,10 +103,10 @@ export function computeSignal(closes: number[], volumes?: number[]): {
     if (rsi !== null && rsi >= 72) {
       return {
         signal: 'hold',
-        detail: `Long-term structure is still up (50-day above 200-day), but RSI(14) is about ${rsiRounded}, which often follows an extended rally — the model waits instead of a buy-style badge.`,
+        detail: `The trend supports buying, but RSI(14) is about ${rsiRounded} — that often follows an extended rally. Wait for a better entry before buying.`,
         breakdown: {
           ...baseOk,
-          holdFilter: `RSI(14) is ${rsiRounded} (model pauses Buys at ≥ 72).`,
+          holdFilter: `RSI(14) is ${rsiRounded} — wait for it to cool off before buying (pauses at ≥ 72).`,
         },
       }
     }
@@ -100,25 +114,25 @@ export function computeSignal(closes: number[], volumes?: number[]): {
       return {
         signal: 'hold',
         detail:
-          'Price sits above a rising 50- and 200-day structure, but recent volume is clearly below its longer-run norm — the model treats that as weak confirmation and stays neutral.',
+          'The trend supports buying, but recent volume is clearly below its longer-run norm — not enough conviction to recommend a buy right now.',
         breakdown: {
           ...baseOk,
           holdFilter:
-            'Recent volume is clearly below its longer-run baseline vs the model.',
+            'Recent volume is too weak to confirm a buy — wait for stronger participation.',
         },
       }
     }
     const rsiBit =
       rsiRounded !== null
-        ? ` RSI(14) is near ${rsiRounded} (not in the “overbought” cut zone used here).`
+        ? ` RSI(14) is near ${rsiRounded}, which is healthy — not in overbought territory.`
         : ''
     const volBit =
       volLevel === 'ok'
-        ? ' Recent volume is in line with or above typical longer-run levels.'
+        ? ' Volume confirms the move with participation at or above typical levels.'
         : ''
     return {
       signal: 'buy',
-      detail: `Long-term uptrend: price is above rising 50- and 200-day averages, with the 50-day above the 200-day.${rsiBit}${volBit}`,
+      detail: `Consider buying — the long-term trend is in your favor. Price is above rising 50- and 200-day averages with the 50-day leading the 200-day.${rsiBit}${volBit}`,
       breakdown: baseOk,
     }
   }
@@ -127,20 +141,20 @@ export function computeSignal(closes: number[], volumes?: number[]): {
     if (rsi !== null && rsi <= 28) {
       return {
         signal: 'hold',
-        detail: `Long-term structure is still down (50-day below 200-day), but RSI(14) is about ${rsiRounded}, which often flags a potentially exhausted dip — the model avoids a Sell badge.`,
+        detail: `The trend points down, but RSI(14) is about ${rsiRounded} — the dip may be exhausted. Hold off on selling at this level; a bounce could be near.`,
         breakdown: {
           ...baseOk,
-          holdFilter: `RSI(14) is ${rsiRounded} (model avoids Sells at ≤ 28).`,
+          holdFilter: `RSI(14) is ${rsiRounded} — too oversold to recommend selling here (pauses at ≤ 28).`,
         },
       }
     }
     const rsiBit =
       rsiRounded !== null
-        ? ` RSI(14) is near ${rsiRounded} (not deep in the “oversold” cut zone).`
+        ? ` RSI(14) is near ${rsiRounded} — still room to fall, not yet in oversold territory.`
         : ''
     return {
       signal: 'sell',
-      detail: `Long-term downtrend: price is below falling 50- and 200-day averages, with the 50-day below the 200-day.${rsiBit}`,
+      detail: `Consider selling — the long-term trend has turned against this position. Price is below falling 50- and 200-day averages with the 50-day trailing the 200-day.${rsiBit}`,
       breakdown: baseOk,
     }
   }
@@ -148,7 +162,7 @@ export function computeSignal(closes: number[], volumes?: number[]): {
   return {
     signal: 'hold',
     detail:
-      'Price and the 50- / 200-day averages are not aligned in a clear long-term up or down pattern (mixed or sideways).',
+      'No clear recommendation right now — the trend is mixed or sideways. Wait for a clearer signal before acting.',
     breakdown: baseOk,
   }
 }

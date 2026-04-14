@@ -84,13 +84,13 @@ export function QuoteCard({
         />
 
         <div className="signal-rationale">
-          <span className="signal-rationale__label">Model note</span>
+          <span className="signal-rationale__label">Our recommendation</span>
           <p className="signal-copy">{quote.signalDetail}</p>
         </div>
 
         <p className="disclaimer muted">
-          Long-term heuristic (50- & 200-day MAs, RSI, volume on daily closes).
-          Not advice — confirm live prices with your broker.
+          Based on a long-term model (50- & 200-day MAs, RSI, volume on daily
+          closes). Always confirm live prices with your broker before acting.
         </p>
       </div>
     </div>

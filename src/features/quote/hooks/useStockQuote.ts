@@ -7,13 +7,15 @@ export function useStockQuote(symbol: string) {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const loadLock = useRef<Promise<void> | null>(null)
+  const lockSymbol = useRef<string | null>(null)
 
   const load = useCallback(async () => {
-    if (loadLock.current) {
+    if (loadLock.current && lockSymbol.current === symbol) {
       await loadLock.current
       return
     }
 
+    lockSymbol.current = symbol
     const run = (async () => {
       setLoading(true)
       setError(null)
@@ -30,6 +32,7 @@ export function useStockQuote(symbol: string) {
 
     loadLock.current = run.then(() => {}).finally(() => {
       loadLock.current = null
+      lockSymbol.current = null
     })
     await loadLock.current
   }, [symbol])

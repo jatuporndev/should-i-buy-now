@@ -1,4 +1,4 @@
-import { rsiWilderLast } from '@/features/quote/utils/rsi'
+import { rsiWilderSeries } from '@/features/quote/utils/rsi'
 
 export type LongTermChartPoint = {
   close: number
@@ -32,6 +32,7 @@ export function buildLongTermChartPoints(
   if (n < 200) return null
 
   const startIdx = Math.max(199, n - maxBars)
+  const rsiAll = rsiWilderSeries(closes, RSI_PERIOD)
   const points: LongTermChartPoint[] = []
   const rsi14: number[] = []
   for (let i = startIdx; i < n; i++) {
@@ -40,8 +41,7 @@ export function buildLongTermChartPoints(
       sma50: mean(closes.slice(i - 49, i + 1)),
       sma200: mean(closes.slice(i - 199, i + 1)),
     })
-    const r = rsiWilderLast(closes.slice(0, i + 1), RSI_PERIOD)
-    rsi14.push(r ?? 50)
+    rsi14.push(rsiAll[i] ?? 50)
   }
 
   let yMin = Infinity

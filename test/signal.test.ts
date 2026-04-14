@@ -93,7 +93,7 @@ describe('computeSignal', () => {
       expect(r.breakdown.volume).toBe('unavailable')
       expect(r.breakdown.rsi14).not.toBeNull()
     }
-    expect(r.detail).toContain('not aligned')
+    expect(r.detail).toContain('No clear recommendation')
   })
 
   it('returns buy on a smooth long-term uptrend without volume/RSI gates', () => {

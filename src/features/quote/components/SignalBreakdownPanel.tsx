@@ -10,33 +10,34 @@ function volumeLabel(
   v: Extract<SignalBreakdown, { status: 'ok' }>['volume'],
 ): string {
   if (v === 'weak') {
-    return 'Below longer-run norm — weak confirmation for long-term Buys'
+    return 'Below normal — not enough conviction to back a Buy'
   }
   if (v === 'ok') {
-    return 'Typical or stronger vs the long-term volume baseline'
+    return 'Healthy — participation supports the recommendation'
   }
-  return 'Not used (missing or unreliable in this feed)'
+  return 'Not available (missing or unreliable in this feed)'
 }
 
 function trendLabel(t: Extract<SignalBreakdown, { status: 'ok' }>['maTrend']) {
   if (t === 'uptrend') {
-    return 'Long-term uptrend (price above rising 50d & 200d averages)'
+    return 'Favors buying (price above rising 50d & 200d averages)'
   }
   if (t === 'downtrend') {
-    return 'Long-term downtrend (price below falling 50d & 200d averages)'
+    return 'Favors selling (price below falling 50d & 200d averages)'
   }
-  return 'Mixed / sideways — 50d & 200d do not line up cleanly'
+  return 'No clear direction — wait before acting'
 }
 
 export function SignalBreakdownPanel({ breakdown, currency }: Props) {
   if (breakdown.status === 'need_history') {
     return (
       <div className="signal-breakdown" role="region" aria-label="Signal inputs">
-        <h3 className="signal-breakdown__title">What drives the badge</h3>
+        <h3 className="signal-breakdown__title">Why this recommendation</h3>
         <p className="signal-breakdown__horizon">Long-term view only.</p>
         <p className="signal-breakdown__note">
-          Need at least 200 trading days of closes for the 200-day average; this
-          feed has {breakdown.tradingDaysAvailable} usable day(s) so far.
+          Not enough data to recommend yet — need at least 200 trading days of
+          closes for the 200-day average; this feed has{' '}
+          {breakdown.tradingDaysAvailable} usable day(s) so far.
         </p>
       </div>
     )
@@ -47,14 +48,14 @@ export function SignalBreakdownPanel({ breakdown, currency }: Props) {
 
   return (
     <div className="signal-breakdown" role="region" aria-label="Signal inputs">
-      <h3 className="signal-breakdown__title">What drives the badge</h3>
+      <h3 className="signal-breakdown__title">Why this recommendation</h3>
       <p className="signal-breakdown__horizon">
-        Long-term view — daily 50- & 200-day trend model (not a short-term
-        trade signal).
+        Based on the daily 50- & 200-day trend model — a long-term view, not a
+        short-term trade signal.
       </p>
       <p className="signal-breakdown__lede muted">
-        Same rules as the paragraph below — numbers are from the daily series
-        used for the model.
+        These are the numbers behind the recommendation — drawn from the same
+        daily series used by the model.
       </p>
       <dl className="signal-breakdown__list">
         <div>
@@ -89,7 +90,7 @@ export function SignalBreakdownPanel({ breakdown, currency }: Props) {
         </div>
         {holdFilter ? (
           <div className="signal-breakdown__full signal-breakdown__filter">
-            <dt>Why not Buy / Sell</dt>
+            <dt>Why Hold instead</dt>
             <dd>{holdFilter}</dd>
           </div>
         ) : null}
