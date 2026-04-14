@@ -110,12 +110,12 @@ export function DiscoverWorkspace({ githubSlot, footer }: DiscoverWorkspaceProps
               onSelectSymbol={setSelectedSymbol}
               watchlistOpen={watchlistOpen}
               onToggleWatchlist={() => setWatchlistOpen((v) => !v)}
-              trailingSlot={githubSlot}
+              trailingSlot={isDesktop ? githubSlot : null}
             />
           ) : (
             <div className="quote-workspace-bar quote-workspace-bar--placeholder">
               <p className="app-page-title">Dashboard</p>
-              {githubSlot}
+              {isDesktop ? githubSlot : null}
             </div>
           )}
         </div>

@@ -115,7 +115,7 @@ export default function App() {
               </nav>
             </div>
           </div>
-          <GitHubRepoLink />
+          <GitHubRepoLink className="app-header-mobile__github" />
         </div>
       </header>
 
